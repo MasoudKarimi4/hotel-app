@@ -21,7 +21,7 @@ const InputTodo = () => {
 
             } )
 
-            console.log(response)
+            window.location = "/"
 
 
         } catch (err) {
