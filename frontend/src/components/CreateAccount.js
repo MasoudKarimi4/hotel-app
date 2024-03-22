@@ -1,9 +1,4 @@
-// important
 import * as React from 'react';
-import { useNavigate } from 'react-router-dom';
-
-
-// mui
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -18,21 +13,16 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-
 const defaultTheme = createTheme();
 
-export default function SignIn() {
-
-  // navigate is how you go to other pages 
-  const navigate = useNavigate();
-
-
+export default function CreateAccount() {
   const handleSubmit = (event) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     console.log({
       email: data.get('email'),
       password: data.get('password'),
+      option: data.get('option'), // New input field for option
     });
   };
 
@@ -52,7 +42,7 @@ export default function SignIn() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign in
+            Create Account
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
             <TextField
@@ -73,36 +63,40 @@ export default function SignIn() {
               label="Password"
               type="password"
               id="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
             />
-           
+            <TextField
+              select
+              fullWidth
+              margin="normal"
+              required
+              name="option"
+              label="Select Option"
+              SelectProps={{
+                native: true,
+              }}
+            >
+              <option value="option1">Option 1</option>
+              <option value="option2">Option 2</option>
+            </TextField>
             <Button
               type="submit"
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Sign In
+              Create Account
             </Button>
-
-
-            
-            <Button
-              type="button" // Change type to "button" to prevent form submission
-              fullWidth
-              variant="contained"
-              sx={{ mb: 2 }}
-              onClick={() => navigate('/create-account')} // Add this line
-              >
-              Make an Account
-              </Button>
             <Grid container>
               <Grid item xs>
-                
+                <Link href="#" variant="body2">
+                  Forgot password?
+                </Link>
               </Grid>
               <Grid item>
-               
-       
+                <Link href="#" variant="body2">
+                  {"Already have an account? Sign In"}
+                </Link>
               </Grid>
             </Grid>
           </Box>
