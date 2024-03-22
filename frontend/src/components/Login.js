@@ -96,6 +96,16 @@ export default function SignIn() {
               >
               Make an Account
               </Button>
+            
+                <Button
+                type="button" // Change type to "button" to prevent form submission
+                fullWidth
+                variant="contained"
+                sx={{ mb: 2 }}
+                onClick={() => navigate('/hotel-app')} // Add this line
+                >
+                Go to hotel app 
+                </Button>
             <Grid container>
               <Grid item xs>
                 
