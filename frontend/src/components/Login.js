@@ -48,6 +48,8 @@ export default function SignIn() {
             alignItems: 'center',
           }}
         >
+
+          <h1 style={{ fontSize: '5rem' }}>Hotel App</h1>
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
