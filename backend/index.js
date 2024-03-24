@@ -15,8 +15,6 @@ app.use(express.json())
 // Routes //
 
 app.post("/createcustomer", async (req, res) => {
-
-
     console.log("Received request at /createcustomer"); // Debug log
 
     try {
@@ -28,17 +26,27 @@ app.post("/createcustomer", async (req, res) => {
         }
 
         // Insert new customer into the database, including the current date for date_of_registration
-        const newCustomer = await pool.query("INSERT INTO customer (name, email, address, date_of_registration) VALUES($1, $2, $3, CURRENT_DATE) RETURNING *", 
-        [name, email, address]);
+        // Use ON CONFLICT to ignore the insert if the email already exists
+        const newCustomer = await pool.query(`
+            INSERT INTO customer (name, email, address, date_of_registration) 
+            VALUES($1, $2, $3, CURRENT_DATE) 
+            ON CONFLICT (email) DO NOTHING 
+            RETURNING *
+        `, [name, email, address]);
 
-        // Send the newly created customer as a response
-        res.status(201).json(newCustomer.rows[0]);
+        // Check if a new customer was inserted
+        if (newCustomer.rows.length > 0) {
+            // Send the newly created customer as a response
+            res.status(201).json(newCustomer.rows[0]);
+        } else {
+            // If no new customer was inserted, it means the email already exists
+            res.status(409).json({ message: "Email already exists in the database" });
+        }
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ message: "Server error" });
     }
 });
-
 
 
 

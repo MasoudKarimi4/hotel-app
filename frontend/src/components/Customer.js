@@ -57,16 +57,27 @@ const CreateCustomer = () => {
                     body: JSON.stringify(body),
                 });
 
-         if (!response.ok) {
-            throw new Error('Network response was not ok');
-         }
-
-        //navigate('/success');
+        if (!response.ok) {
+            // Check if the response status is 409 (Conflict)
+            if (response.status === 409) {
+                // Assuming the server sends a JSON response with a message
+                const errorResponse = await response.json();
+                console.error(errorResponse.message); // This will log "Email already taken!"
+                // Optionally, set an error state to display the message in the UI
+                setEmailError("Email already taken!");
+            } else {
+                throw new Error('Network response was not ok');
+            }
+        } else {
+            navigate('/success');
+        }
       } catch (err) {
         console.error(err.message);
+        // Handle other errors as needed
       }
     }
-  };
+};
+
 
   return (
     <ThemeProvider theme={defaultTheme}>
