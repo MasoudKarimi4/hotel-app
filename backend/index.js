@@ -14,7 +14,57 @@ app.use(express.json())
 
 // Routes //
 
+app.post("/createcustomer", async (req, res) => {
+
+
+    console.log("Received request at /createcustomer"); // Debug log
+
+    try {
+        const { name, email, address } = req.body; // Extracting customer details from request body
+
+        // Ensure that name, email, and address are provided in the request body
+        if (!name || !email || !address) {
+            return res.status(400).json({ message: "Name, email, and address are required" });
+        }
+
+        // Insert new customer into the database, including the current date for date_of_registration
+        const newCustomer = await pool.query("INSERT INTO customer (name, email, address, date_of_registration) VALUES($1, $2, $3, CURRENT_DATE) RETURNING *", 
+        [name, email, address]);
+
+        // Send the newly created customer as a response
+        res.status(201).json(newCustomer.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// USELESS ROUTES /////////////////////////////////////////////////////////
 // Create a Todo
+
 
 app.post("/todos", async (req, res) => {
     try {
@@ -95,6 +145,6 @@ app.delete("/todos/:id", async (req, res) => {
 
 
 app.listen(5000, () => {
-    console.log('Server is listening on port 500e0e')
+    console.log('Server is listening on port 5000')
 })
 

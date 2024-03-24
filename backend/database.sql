@@ -63,7 +63,7 @@ CREATE TABLE room_amenities(
 )
 
 CREATE TABLE customer(
-	ssn int PRIMARY KEY,
+	ssn SERIAL PRIMARY KEY,
 	name VARCHAR(30),
 	address VARCHAR(50),
 	email VARCHAR(40),

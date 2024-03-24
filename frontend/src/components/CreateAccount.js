@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -16,7 +17,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 const defaultTheme = createTheme();
 
 export default function CreateAccount() {
- const [selectedOption, setSelectedOption] = React.useState('');
+ const navigate = useNavigate();
 
  const handleSubmit = (event) => {
     event.preventDefault();
@@ -26,10 +27,6 @@ export default function CreateAccount() {
       password: data.get('password'),
       option: data.get('option'),
     });
- };
-
- const handleOptionChange = (event) => {
-    setSelectedOption(event.target.value);
  };
 
  return (
@@ -49,105 +46,31 @@ export default function CreateAccount() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Create Account
+            Sign in
           </Typography>
           <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-          <TextField
-            select
-            fullWidth
-            margin="normal"
-            required
-            name="option"
-            label=""
-            SelectProps={{
-                native: true,
-                fullWidth: true,
-                margin: 'normal'
-            }}
-            value={selectedOption}
-            onChange={handleOptionChange}
+            <Button
+              type="button"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              onClick={() => navigate('/customer')}
             >
-            <option value="">Select an option</option>
-            <option value="customer">Customer</option>
-            <option value="employee">Employee</option>
-            </TextField>
-            {selectedOption === 'customer' && (
-              <div>
-                {/* Customer specific fields */}
-                <TextField
-                 margin="normal"
-                 fullWidth
-                 name="customerField"
-                 label="Name"
-                 type="text"
-                 id="customerField"
-                />
-
-                <TextField
-                 margin="normal"
-                 fullWidth
-                 name="customerField"
-                 label="Address"
-                 type="text"
-                 id="customerField"
-                />
-
-                <TextField
-                 margin="normal"
-                 fullWidth
-                 name="customerField"
-                 label="Email"
-                 type="text"
-                 id="customerField"
-                />
-
-
-
-
-
-                <Button
-                 type="submit"
-                 fullWidth
-                 variant="contained"
-                 sx={{ mt: 3, mb: 2 }}
-                >
-                 Submit as Customer
-                </Button>
-              </div>
-            )}
-            {selectedOption === 'employee' && (
-              <div>
-                {/* Employee specific fields */}
-                <TextField
-                 margin="normal"
-                 fullWidth
-                 name="employeeName"
-                 label="Name"
-                 type="text"
-                 id="employeeField"
-                />
-
-                <TextField
-                 margin="normal"
-                 fullWidth
-                 name="employeeSin"
-                 label="Sin"
-                 type="text"
-                 id="employeeField"
-                />
-
-                <Button
-                 type="submit"
-                 fullWidth
-                 variant="contained"
-                 sx={{ mt: 3, mb: 2 }}
-                >
-                 Submit as Employee
-                </Button>
-              </div>
-            )}
+              Customer
+            </Button>
+            <Button
+              type="button"
+              fullWidth
+              variant="contained"
+              sx={{ mt: 3, mb: 2 }}
+              onClick={() => navigate('/employee')}
+            >
+              Employee
+            </Button>
             <Grid container>
               <Grid item xs>
+              </Grid>
+              <Grid item>
               </Grid>
             </Grid>
           </Box>

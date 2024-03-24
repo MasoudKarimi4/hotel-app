@@ -7,6 +7,9 @@ import SignIn from "./components/Login";
 import CreateAccount from "./components/CreateAccount";
 import HotelApp from "./components/HotelApp"
 
+import CustomerSignIn from "./components/Customer"
+import EmployeeSignIn from "./components/Employee"
+
 
 function App() {
  return (
@@ -17,6 +20,8 @@ function App() {
             <Route path="/" element={<SignIn />} />
             <Route path="/create-account" element={<CreateAccount />} />
             <Route path="/hotel-app" element={<HotelApp />} />
+            <Route path="/customer" element={<CustomerSignIn />} />
+            <Route path="/employee" element={<EmployeeSignIn />} />
           </Routes>
         </div>
       </Fragment>
