@@ -1,6 +1,8 @@
 
-///
 
+
+/////
+/////
 import React, { Fragment, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
@@ -16,23 +18,25 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 const defaultTheme = createTheme();
 
 const CreateCustomer = () => {
-  const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [nameError, setNameError] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [addressError, setAddressError] = useState('');
+ const navigate = useNavigate();
+ const [name, setName] = useState('');
+ const [email, setEmail] = useState('');
+ const [address, setAddress] = useState('');
+ const [nameError, setNameError] = useState('');
+ const [emailError, setEmailError] = useState('');
+ const [addressError, setAddressError] = useState('');
+ const [successMessage, setSuccessMessage] = useState(''); // New state for success message
 
-  const onSubmitForm = async (e) => {
+ const onSubmitForm = async (e) => {
     e.preventDefault();
 
-    // Reset error messages
+    // Reset error messages and success message
     setNameError('');
     setEmailError('');
     setAddressError('');
+    setSuccessMessage('');
 
-    // Simple validation
+    // Validation and submission logic...
     if (!name) {
       setNameError('Name is required.');
     }
@@ -45,7 +49,6 @@ const CreateCustomer = () => {
       setAddressError('Address is required.');
     }
 
-    // If there are no errors, proceed with the submission
     if (!nameError && !emailError && !addressError) {
       try {
         const body = { name, email, address };
@@ -58,28 +61,19 @@ const CreateCustomer = () => {
                 });
 
         if (!response.ok) {
-            // Check if the response status is 409 (Conflict)
-            if (response.status === 409) {
-                // Assuming the server sends a JSON response with a message
-                const errorResponse = await response.json();
-                console.error(errorResponse.message); // This will log "Email already taken!"
-                // Optionally, set an error state to display the message in the UI
-                setEmailError("Email already taken!");
-            } else {
-                throw new Error('Network response was not ok');
-            }
+            // Error handling...
         } else {
-            navigate('/success');
+            setSuccessMessage('Account created successfully!');
+          //  navigate('/success');
         }
       } catch (err) {
         console.error(err.message);
         // Handle other errors as needed
       }
     }
-};
+ };
 
-
-  return (
+ return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
@@ -100,7 +94,10 @@ const CreateCustomer = () => {
           <Typography component="h1" variant="h5">
             Customer Account
           </Typography>
-          <Box
+          {successMessage && <p>{successMessage}</p>} {/* Display success message */}
+         
+            
+            <Box
             component="form"
             onSubmit={onSubmitForm}
             noValidate
@@ -153,11 +150,24 @@ const CreateCustomer = () => {
             >
               Create Customer Account
             </Button>
+
+            <Button
+              type="button" // Change type to "button" to prevent form submission
+              fullWidth
+              variant="contained"
+              sx={{ mb: 2 }}
+              onClick={() => navigate('/')} // Add this line
+              >
+              Go to Sign In
+              </Button>
+
+
+
           </Box>
         </Box>
       </Container>
     </ThemeProvider>
-  );
+ );
 };
 
 export default CreateCustomer;

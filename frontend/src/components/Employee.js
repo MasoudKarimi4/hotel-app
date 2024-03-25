@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
@@ -12,24 +12,26 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 const defaultTheme = createTheme();
 
-const CreateCustomer = () => {
-  const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [address, setAddress] = useState('');
-  const [nameError, setNameError] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [addressError, setAddressError] = useState('');
+const CreateEmployee = () => { // Renamed from CreateCustomer
+ const navigate = useNavigate();
+ const [name, setName] = useState('');
+ const [email, setEmail] = useState('');
+ const [ssn, setSsn] = useState(''); // New state for SSN
+ const [nameError, setNameError] = useState('');
+ const [emailError, setEmailError] = useState('');
+ const [ssnError, setSsnError] = useState(''); // New state for SSN error
+ const [successMessage, setSuccessMessage] = useState('');
 
-  const onSubmitForm = async (e) => {
+ const onSubmitForm = async (e) => {
     e.preventDefault();
 
-    // Reset error messages
+    // Reset error messages and success message
     setNameError('');
     setEmailError('');
-    setAddressError('');
+    setSsnError('');
+    setSuccessMessage('');
 
-    // Simple validation
+    // Validation logic...
     if (!name) {
       setNameError('Name is required.');
     }
@@ -38,35 +40,35 @@ const CreateCustomer = () => {
     } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(email)) {
       setEmailError('Invalid email address.');
     }
-    if (!address) {
-      setAddressError('Address is required.');
+    if (!ssn) { // Assuming SSN is required
+      setSsnError('SSN is required.');
     }
 
-    // If there are no errors, proceed with the submission
-    if (!nameError && !emailError && !addressError) {
+    if (!nameError && !emailError && !ssnError) {
       try {
-        const body = { name, email, address };
+        const body = { name, email, ssn }; // Include SSN in the request body
         console.log('Request body:', body);
 
-        // Mocking API call
-        // const response = await fetch("http://localhost:5000/createcustomer", {
-        //     method: "POST",
-        //     headers: { "Content-Type": "application/json" },
-        //     body: JSON.stringify(body),
-        // });
+        const response = await fetch("http://localhost:5000/createemployee", { // Assuming the endpoint is for creating an employee
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
 
-        // if (!response.ok) {
-        //     throw new Error('Network response was not ok');
-        // }
-
-        navigate('/success');
+        if (!response.ok) {
+            // Error handling...
+        } else {
+            setSuccessMessage('Employee account created successfully!');
+            // navigate('/success');
+        }
       } catch (err) {
         console.error(err.message);
+        // Handle other errors as needed
       }
     }
-  };
+ };
 
-  return (
+ return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
@@ -78,15 +80,18 @@ const CreateCustomer = () => {
             alignItems: 'center',
           }}
         >
-          <Typography component="h1" variant="h2">
+
+<Typography component="h1" variant="h2">
             Hotel App
           </Typography>
           <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Customer Account
+            Employee Account
           </Typography>
+
+          {successMessage && <p>{successMessage}</p>}
           <Box
             component="form"
             onSubmit={onSubmitForm}
@@ -124,13 +129,13 @@ const CreateCustomer = () => {
               margin="normal"
               required
               fullWidth
-              id="address"
-              label="Address"
-              name="address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              error={!!addressError}
-              helperText={addressError}
+              id="ssn"
+              label="SSN"
+              name="ssn"
+              value={ssn}
+              onChange={(e) => setSsn(e.target.value)}
+              error={!!ssnError}
+              helperText={ssnError}
             />
             <Button
               type="submit"
@@ -138,13 +143,13 @@ const CreateCustomer = () => {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Create Customer Account
+              Create Employee Account
             </Button>
           </Box>
         </Box>
       </Container>
     </ThemeProvider>
-  );
+ );
 };
 
-export default CreateCustomer;
+export default CreateEmployee;

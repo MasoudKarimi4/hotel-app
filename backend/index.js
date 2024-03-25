@@ -16,9 +16,16 @@ app.use(express.json())
 
 app.post("/createcustomer", async (req, res) => {
     console.log("Received request at /createcustomer"); // Debug log
-
     try {
         const { name, email, address } = req.body; // Extracting customer details from request body
+
+        console.log('SQL Query:', `
+         INSERT INTO customer (name, email, address, date_of_registration) 
+         VALUES($1, $2, $3, CURRENT_DATE) 
+         ON CONFLICT (email) DO NOTHING 
+         RETURNING *
+     `);
+
 
         // Ensure that name, email, and address are provided in the request body
         if (!name || !email || !address) {

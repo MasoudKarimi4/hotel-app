@@ -4,10 +4,10 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 // These imports are all components / pages 
 import SignIn from "./components/Login";
-import CreateAccount from "./components/CreateAccount";
+import CreateAccount from "./components/accounts/CreateAccount";
 import HotelApp from "./components/HotelApp"
 
-import CustomerSignIn from "./components/Customer"
+import CustomerSignIn from "./components/accounts/Customer"
 import EmployeeSignIn from "./components/Employee"
 
 
