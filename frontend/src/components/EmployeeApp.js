@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 
 
-export default function HotelApp() {
+export default function EmployeeApp() {
   // navigate is how you go to other pages 
   const navigate = useNavigate();
 
@@ -19,7 +19,7 @@ export default function HotelApp() {
   return (
     <div>
       {/* Your JSX content for the editing page goes here */}
-      <h1>Hotel App </h1>
+      <h1>Employee App </h1>
     </div>
   );
 }

@@ -5,7 +5,9 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 // These imports are all components / pages 
 import SignIn from "./components/Login";
 import CreateAccount from "./components/CreateAccount";
-import HotelApp from "./components/HotelApp"
+
+import EmployeeApp from "./components/EmployeeApp";
+import CustomerApp from "./components/CustomerApp"
 
 import CustomerSignIn from "./components/Customer"
 import EmployeeSignIn from "./components/Employee"
@@ -19,7 +21,10 @@ function App() {
           <Routes>
             <Route path="/" element={<SignIn />} />
             <Route path="/create-account" element={<CreateAccount />} />
-            <Route path="/hotel-app" element={<HotelApp />} />
+
+            <Route path="/customer-app" element={<CustomerApp />} />
+            <Route path="/employee-app" element={<EmployeeApp />} />
+
             <Route path="/customer" element={<CustomerSignIn />} />
             <Route path="/employee" element={<EmployeeSignIn />} />
           </Routes>
