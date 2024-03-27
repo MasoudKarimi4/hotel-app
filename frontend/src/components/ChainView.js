@@ -16,7 +16,7 @@ import Filters from './CustomerFilters';
 
 const defaultTheme = createTheme();
 
-export default function CustomerApp() {
+export default function ChainView() {
   const navigate = useNavigate();
   const [priceRange, setPriceRange] = React.useState(100); // Initial value for price range slider
 
@@ -77,7 +77,7 @@ export default function CustomerApp() {
                 }
               }}
             >
-              Filter
+              Filter 
             </Link>
             <Link
               component="button"
@@ -103,7 +103,6 @@ export default function CustomerApp() {
       </AppBar>
 
 
-      <Filters/>
 
 
     </ThemeProvider>

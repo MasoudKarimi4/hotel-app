@@ -1,9 +1,6 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -11,6 +8,13 @@ import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
 import Slider from '@mui/material/Slider';
+
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import Checkbox from '@mui/material/Checkbox';
+import ListItemText from '@mui/material/ListItemText';
+import OutlinedInput from '@mui/material/OutlinedInput';
 
 const defaultTheme = createTheme();
 
@@ -23,9 +27,25 @@ export default function Filters() {
  const [city, setCity] = React.useState(''); // Default to empty string
  const [roomView, setRoomView] = React.useState(''); // Default to empty string
  const [chain, setChain] = React.useState(''); // Default to empty string
+ const [people, setPeople] = React.useState(''); // Default to empty string
+
 
  const [error, setError] = React.useState(false); // New state to track error
  const [errors, setErrors] = React.useState({}); // New state to track errors
+
+ const amenities = [
+  { id: 1, name: 'Wi-Fi' },
+  { id: 2, name: 'Pool' },
+  { id: 3, name: 'Gym' },
+  { id: 4, name: 'Free Parking' },
+  { id: 5, name: 'Restaurant' },
+ ];
+ 
+ const [selectedAmenities, setSelectedAmenities] = React.useState([]);
+
+ const handleChange = (event) => {
+    setSelectedAmenities(event.target.value);
+ };
 
 
  const handleSubmit = (event) => {
@@ -41,6 +61,7 @@ export default function Filters() {
     if (!dates2) newErrors.dates2 = true;
     if (!roomView) newErrors.roomView = true;
     if (!chain) newErrors.chain = true;
+    if (!people) newErrors.people = true;
 
     setErrors(newErrors);
 
@@ -53,6 +74,7 @@ export default function Filters() {
       if (dates2) queryParams.append('dates2', dates2);
       if (roomView) queryParams.append('roomView', roomView);
       if (chain) queryParams.append('chain', chain);
+      if (people) queryParams.append('people', people)
 
       // Convert URLSearchParams object to a JSON object
       const paramsObject = Object.fromEntries(queryParams.entries());
@@ -84,6 +106,8 @@ export default function Filters() {
           <Typography variant="h4" component="h1" gutterBottom sx={{ color: '#1976d2', fontWeight: 'bold' }}>
             Filter By
           </Typography>
+
+          <form onSubmit={handleSubmit}> {/* Wrap both sets of filters in a single form */}
           <Box sx={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
             {/* Rating TextField */}
             <TextField
@@ -139,14 +163,28 @@ export default function Filters() {
             {/* City TextField */}
             <TextField
               label="City"
+              select
               variant="outlined"
               value={city}
+              sx={{ width: '200px' }}
               onChange={(event) => setCity(event.target.value)}
               size="small"
+              error={errors.city}
+              helperText={errors.city && "Please select a city."}
               InputLabelProps={{
                 shrink: true,
               }}
-            />
+            >
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="mountain">Mountain</MenuItem>
+              <MenuItem value="sea">Sea</MenuItem>
+              <MenuItem value="mountain">Mountain</MenuItem>
+              <MenuItem value="sea">Sea</MenuItem>
+            </TextField>
+
+
+
+
             {/* Room View TextField */}
             <TextField
               label="Room View"
@@ -192,15 +230,106 @@ export default function Filters() {
               max={100}
               sx={{ width: '200px' }}
             />
+
+          
+          </Box>
+
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
+            {/* Rating TextField */}
+            <TextField
+              label="Number of People"
+              select
+              variant="outlined"
+              value={people}
+              onChange={(event) => setPeople(event.target.value)}
+              size="small"
+              sx={{ width: '200px' }}
+              error={errors.people}
+              helperText={errors.people && "Please select number of people."}
+            >
+              <MenuItem value="1">1</MenuItem>
+              <MenuItem value="2">2</MenuItem>
+              <MenuItem value="3">3</MenuItem>
+              <MenuItem value="4">4</MenuItem>
+              </TextField>
+
+          
+
+            {/* Room View TextField */}
+            <TextField
+              label="Room View"
+              select
+              variant="outlined"
+              value={roomView}
+              onChange={(event) => setRoomView(event.target.value)}
+              size="small"
+              sx={{ width: '200px' }}
+              error={errors.rating}
+              helperText={errors.rating && "Please select a view."}
+            >
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="mountain">Mountain</MenuItem>
+              <MenuItem value="sea">Sea</MenuItem>
+            </TextField>
+            {/* Chain TextField */}
+            {/* Amenities FormControl */}
+            <FormControl variant="outlined" size="small" sx={{ width: '200px' }}>
+              <InputLabel id="amenities-select-label">Amenities</InputLabel>
+              <Select
+                labelId="amenities-select-label"
+                id="amenities-select"
+                multiple
+                value={selectedAmenities}
+                onChange={handleChange}
+                input={<OutlinedInput label="Amenities" />}
+                renderValue={(selected) => selected.map((x) => x.name).join(', ')}
+              >
+                {amenities.map((amenity) => (
+                 <MenuItem
+                    key={amenity.id}
+                    value={amenity}
+                    selected={selectedAmenities.indexOf(amenity) > -1}
+                 >
+                    <Checkbox checked={selectedAmenities.indexOf(amenity) > -1} />
+                    <ListItemText primary={amenity.name} />
+                 </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+
             {/* Search Button */}
             <Button variant="contained" color="primary" onClick={handleSubmit}>
               Search
             </Button>
                         {/* Error message */}
-                        {error && <p style={{ color: 'red' }}>Please select at least one option.</p>}
+            {error && <p style={{ color: 'red' }}>Please select at least one option.</p>}
           </Box>
+
+
+
+          </form>
         </Box>
       </Container>
     </ThemeProvider>
  );
 }
+
+
+/* 
+
+(1, 'Free Wi-Fi'),
+(2, 'Air Conditioning'),
+(3, 'Mini Bar'),
+(4, 'Ocean View'),
+(5, 'Room Service'),
+(6, 'Flat Screen TV'),
+(7, 'Coffee Maker'),
+(8, 'In-room Safe'),
+(9, 'Daily Housekeeping'),
+(10, 'Luxury Toiletries');
+
+
+
+
+*/

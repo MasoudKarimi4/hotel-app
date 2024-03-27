@@ -6,6 +6,7 @@ import CustomerApp from "./components/CustomerApp";
 import CreateAccount from "./components/accounts/CreateAccount";
 import CustomerSignIn from "./components/accounts/Customer";
 import EmployeeSignIn from "./components/Employee";
+import ChainView from './components/ChainView';
 
 function App() {
   return (
@@ -19,6 +20,8 @@ function App() {
             <Route path="/employee-app" element={<EmployeeApp />} />
             <Route path="/customer" element={<CustomerSignIn />} />
             <Route path="/employee" element={<EmployeeSignIn />} />
+
+            <Route path="/chains" element={<ChainView />} />
           </Routes>
         </div>
       </Fragment>
