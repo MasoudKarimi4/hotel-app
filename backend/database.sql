@@ -63,12 +63,13 @@ CREATE TABLE room_amenities(
 )
 
 CREATE TABLE customer(
-	ssn SERIAL PRIMARY KEY,
-	name VARCHAR(30),
-	address VARCHAR(50),
-	email VARCHAR(40),
-	date_of_registration DATE
-)
+    ssn SERIAL PRIMARY KEY,
+    name VARCHAR(30),
+    address VARCHAR(50),
+    email VARCHAR(40) UNIQUE,
+    date_of_registration DATE
+);
+
 
 CREATE TABLE booking(
 	booking_id SERIAL PRIMARY KEY,
