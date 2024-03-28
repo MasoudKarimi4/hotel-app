@@ -19,11 +19,7 @@ export default function ChainView() {
     const fetchData = async () => {
       try {
         const response = await fetch('http://localhost:5000/all-chains');
-        console.log('Response from server:', response); // Log the response from the server
         const data = await response.json();
-
-        console.log('Data from server:', data); // Log the parsed JSON data
-        
         setChainsData(data.chainsById);
       } catch (error) {
         console.error('Error fetching chains data:', error);
@@ -107,7 +103,6 @@ export default function ChainView() {
           <Typography variant="h4" component="h1" gutterBottom sx={{ color: '#1976d2', fontWeight: 'bold' }}>
             Hotel Chains
           </Typography>
-
           <TableContainer component={Paper} sx={{ marginBottom: '20px' }}>
             <Table>
               <TableHead>
@@ -130,6 +125,38 @@ export default function ChainView() {
               </TableBody>
             </Table>
           </TableContainer>
+
+          {Object.entries(chainsData).map(([chainId, chain]) => (
+            <Box key={chainId} sx={{ marginBottom: '20px', width: '100%'  }}>
+
+              
+              <Typography variant="h5" component="h2" gutterBottom sx={{ color: '#1976d2', fontWeight: 'bold' }}>
+                Chain ID: {chainId}
+              </Typography>
+
+              
+              <TableContainer component={Paper} sx={{ width: '100%', marginBottom: '20px' }}> {/* Adjust the width here */}
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Name</TableCell>
+                      <TableCell>Address</TableCell>
+                      <TableCell>Phone Number</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {chain.hotels.map((hotel) => (
+                      <TableRow key={hotel.hotel_id}>
+                        <TableCell>{hotel.name}</TableCell>
+                        <TableCell>{hotel.address}</TableCell>
+                        <TableCell>{hotel.phone_number}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          ))}
         </Box>
       </Container>
     </ThemeProvider>

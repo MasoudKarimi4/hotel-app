@@ -60,27 +60,43 @@ app.get("/all-chains", async (req, res) => {
     console.log("Received chain get request ");
 
     try {
-        // Write SQL query to select all rows from the hotel_chains table
-        const query = 'SELECT * FROM hotel_chain';
+        // Write SQL query to select all rows from the hotel_chain table
+        const chainsQuery = 'SELECT * FROM hotel_chain';
+        const hotelsQuery = 'SELECT * FROM hotel';
 
-        // Execute the SQL query using pool.query and await the result
-        const { rows } = await pool.query(query);
-        // If data is retrieved successfully, organize it by chain ID
+        // Execute the SQL queries using pool.query and await the results
+        const chainsResponse = await pool.query(chainsQuery);
+        const hotelsResponse = await pool.query(hotelsQuery);
+
+        // If data is retrieved successfully, organize chains by chain ID
         const chainsById = {};
-        
-        rows.forEach(chain => {
+        chainsResponse.rows.forEach(chain => {
             const chainId = chain.chain_id;
-            
-            // Add the chain to the corresponding ID in the object
             chainsById[chainId] = {
+                chain_id: chainId,
                 address: chain.address,
                 email: chain.email,
-                phone_number: chain.phone_number
+                phone_number: chain.phone_number,
+                hotels: [] // Initialize an empty array for hotels
             };
         });
-        
-        console.log(chainsById);
-        
+
+        // If data is retrieved successfully, organize hotels by chain ID
+        hotelsResponse.rows.forEach(hotel => {
+            const chainId = hotel.chain_id;
+            // Add hotel details to the corresponding chain's hotels array
+            chainsById[chainId].hotels.push({
+                hotel_id: hotel.hotel_id,
+                name: hotel.name,
+                address: hotel.address,
+                phone_number: hotel.phone_number
+            });
+        });
+
+        //console.log(JSON.stringify(chainsById, null, 2));
+
+        //console.log(chainsById);
+
         // If data is retrieved successfully, send it as the response
         res.json({ chainsById });
     } catch (error) {
@@ -89,7 +105,6 @@ app.get("/all-chains", async (req, res) => {
         res.status(500).json({ error: 'An error occurred while fetching hotel chains' });
     }
 });
-
 
 
 
