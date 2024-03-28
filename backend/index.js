@@ -56,7 +56,39 @@ app.post("/createcustomer", async (req, res) => {
 });
 
 
+app.get("/all-chains", async (req, res) => {
+    console.log("Received chain get request ");
 
+    try {
+        // Write SQL query to select all rows from the hotel_chains table
+        const query = 'SELECT * FROM hotel_chain';
+
+        // Execute the SQL query using pool.query and await the result
+        const { rows } = await pool.query(query);
+        // If data is retrieved successfully, organize it by chain ID
+        const chainsById = {};
+        
+        rows.forEach(chain => {
+            const chainId = chain.chain_id;
+            
+            // Add the chain to the corresponding ID in the object
+            chainsById[chainId] = {
+                address: chain.address,
+                email: chain.email,
+                phone_number: chain.phone_number
+            };
+        });
+        
+        console.log(chainsById);
+        
+        // If data is retrieved successfully, send it as the response
+        res.json({ chainsById });
+    } catch (error) {
+        // If an error occurs, log it and send an error response
+        console.error('Error fetching hotel chains:', error);
+        res.status(500).json({ error: 'An error occurred while fetching hotel chains' });
+    }
+});
 
 
 

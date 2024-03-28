@@ -80,12 +80,15 @@ export default function Filters() {
       const paramsObject = Object.fromEntries(queryParams.entries());
 
       // Now you can access individual values in the JSON object
+      console.log("Submitted Filters:")
       console.log("City: " + paramsObject.city || "All");
       console.log("Price: " + paramsObject.priceRange || "All");
       console.log("Rating: " + paramsObject.rating || "All");
       console.log("Dates: " + paramsObject.dates + " to " + paramsObject.dates2 || "All");
       console.log("View: " + paramsObject.roomView || "All");
       console.log("Chain: " + paramsObject.chain || "All");
+      console.log("People : " + paramsObject.people || "All");
+
     }    
 
 
@@ -184,9 +187,28 @@ export default function Filters() {
 
 
 
+            {/* Price Range Slider */}
+            <Slider
+              value={priceRange}
+              onChange={handlePriceRangeChange}
+              valueLabelDisplay="auto"
+              aria-labelledby="price-range-slider"
+              min={0}
+              max={100}
+              sx={{ width: '200px' }}
+            />
+
+          
+          </Box>
+
+
+
+
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
+
 
             {/* Room View TextField */}
-            <TextField
+              <TextField
               label="Room View"
               select
               variant="outlined"
@@ -201,8 +223,9 @@ export default function Filters() {
               <MenuItem value="mountain">Mountain</MenuItem>
               <MenuItem value="sea">Sea</MenuItem>
             </TextField>
-            {/* Chain TextField */}
-            <TextField
+
+
+          <TextField
               label="Chain"
               select
               variant="outlined"
@@ -220,21 +243,7 @@ export default function Filters() {
               <MenuItem value="chain4">4</MenuItem>
               <MenuItem value="chain5">5</MenuItem>
             </TextField>
-            {/* Price Range Slider */}
-            <Slider
-              value={priceRange}
-              onChange={handlePriceRangeChange}
-              valueLabelDisplay="auto"
-              aria-labelledby="price-range-slider"
-              min={0}
-              max={100}
-              sx={{ width: '200px' }}
-            />
 
-          
-          </Box>
-
-          <Box sx={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '20px' }}>
             {/* Rating TextField */}
             <TextField
               label="Number of People"
@@ -256,46 +265,9 @@ export default function Filters() {
           
 
             {/* Room View TextField */}
-            <TextField
-              label="Room View"
-              select
-              variant="outlined"
-              value={roomView}
-              onChange={(event) => setRoomView(event.target.value)}
-              size="small"
-              sx={{ width: '200px' }}
-              error={errors.rating}
-              helperText={errors.rating && "Please select a view."}
-            >
-              <MenuItem value="all">All</MenuItem>
-              <MenuItem value="mountain">Mountain</MenuItem>
-              <MenuItem value="sea">Sea</MenuItem>
-            </TextField>
-            {/* Chain TextField */}
-            {/* Amenities FormControl */}
-            <FormControl variant="outlined" size="small" sx={{ width: '200px' }}>
-              <InputLabel id="amenities-select-label">Amenities</InputLabel>
-              <Select
-                labelId="amenities-select-label"
-                id="amenities-select"
-                multiple
-                value={selectedAmenities}
-                onChange={handleChange}
-                input={<OutlinedInput label="Amenities" />}
-                renderValue={(selected) => selected.map((x) => x.name).join(', ')}
-              >
-                {amenities.map((amenity) => (
-                 <MenuItem
-                    key={amenity.id}
-                    value={amenity}
-                    selected={selectedAmenities.indexOf(amenity) > -1}
-                 >
-                    <Checkbox checked={selectedAmenities.indexOf(amenity) > -1} />
-                    <ListItemText primary={amenity.name} />
-                 </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+
+
+
 
 
             {/* Search Button */}

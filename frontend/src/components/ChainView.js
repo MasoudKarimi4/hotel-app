@@ -7,31 +7,31 @@ import Link from '@mui/material/Link';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import MenuItem from '@mui/material/MenuItem';
-import Slider from '@mui/material/Slider';
-
-import Filters from './CustomerFilters';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 
 const defaultTheme = createTheme();
 
 export default function ChainView() {
   const navigate = useNavigate();
-  const [priceRange, setPriceRange] = React.useState(100); // Initial value for price range slider
+  const [chainsData, setChainsData] = React.useState({});
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
-  };
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/all-chains');
+        console.log('Response from server:', response); // Log the response from the server
+        const data = await response.json();
 
-  const handlePriceRangeChange = (event, newValue) => {
-    setPriceRange(newValue);
-  };
+        console.log('Data from server:', data); // Log the parsed JSON data
+        
+        setChainsData(data.chainsById);
+      } catch (error) {
+        console.error('Error fetching chains data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <ThemeProvider theme={defaultTheme}>
@@ -102,9 +102,36 @@ export default function ChainView() {
         </Toolbar>
       </AppBar>
 
+      <Container component="main" maxWidth="md" sx={{ marginTop: '20px' }}>
+        <Box sx={{ my: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Typography variant="h4" component="h1" gutterBottom sx={{ color: '#1976d2', fontWeight: 'bold' }}>
+            Hotel Chains
+          </Typography>
 
-
-
+          <TableContainer component={Paper} sx={{ marginBottom: '20px' }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Chain ID</TableCell>
+                  <TableCell>Address</TableCell>
+                  <TableCell>Email</TableCell>
+                  <TableCell>Phone Number</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {Object.entries(chainsData).map(([chainId, chain]) => (
+                  <TableRow key={chainId}>
+                    <TableCell>{chainId}</TableCell>
+                    <TableCell>{chain.address}</TableCell>
+                    <TableCell>{chain.email}</TableCell>
+                    <TableCell>{chain.phone_number}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Box>
+      </Container>
     </ThemeProvider>
- );
+  );
 }
