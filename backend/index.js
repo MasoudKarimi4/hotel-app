@@ -14,46 +14,191 @@ app.use(express.json())
 
 // Routes //
 
-app.post("/createcustomer", async (req, res) => {
-    console.log("Received request at /createcustomer"); // Debug log
+// Add this new endpoint to your Express app
+
+// POST endpoint for creating a new customer
+app.post("/addcustomer", async (req, res) => {
     try {
-        const { name, email, address } = req.body; // Extracting customer details from request body
+        const { ssn, name, address, email, date_of_registration } = req.body;
+        const newCustomerQuery = `
+            INSERT INTO customer (ssn, name, address, email, date_of_registration) 
+            VALUES ($1, $2, $3, $4, $5) RETURNING *;
+        `;
+        const newCustomer = await pool.query(newCustomerQuery, [ssn, name, address, email, date_of_registration]);
 
-        console.log('SQL Query:', `
-         INSERT INTO customer (name, email, address, date_of_registration) 
-         VALUES($1, $2, $3, CURRENT_DATE) 
-         ON CONFLICT (email) DO NOTHING 
-         RETURNING *
-     `);
-
-
-        // Ensure that name, email, and address are provided in the request body
-        if (!name || !email || !address) {
-            return res.status(400).json({ message: "Name, email, and address are required" });
-        }
-
-        // Insert new customer into the database, including the current date for date_of_registration
-        // Use ON CONFLICT to ignore the insert if the email already exists
-        const newCustomer = await pool.query(`
-            INSERT INTO customer (name, email, address, date_of_registration) 
-            VALUES($1, $2, $3, CURRENT_DATE) 
-            ON CONFLICT (email) DO NOTHING 
-            RETURNING *
-        `, [name, email, address]);
-
-        // Check if a new customer was inserted
-        if (newCustomer.rows.length > 0) {
-            // Send the newly created customer as a response
-            res.status(201).json(newCustomer.rows[0]);
+        res.json(newCustomer.rows[0]);
+    } catch (error) {
+        if (error.code === '23505') {
+            // Unique violation error code
+            res.status(409).json({ message: "SSN already exists in the database" });
         } else {
-            // If no new customer was inserted, it means the email already exists
-            res.status(409).json({ message: "Email already exists in the database" });
+            console.error('Error adding new customer:', error);
+            res.status(500).send('Server error');
         }
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ message: "Server error" });
     }
 });
+
+app.get('/api/customers', async (req, res) => {
+    try {
+        const allCustomers = await pool.query('SELECT * FROM customer'); // Replace 'customer' with your actual customer table name
+        res.json(allCustomers.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error while fetching customers');
+    }
+});
+
+// Assuming `pool` is your database connection, and it's already set up.
+// Add this endpoint to handle DELETE requests for deleting customers by SSN.
+
+app.delete('/api/customers/:ssn', async (req, res) => {
+    const { ssn } = req.params;
+    try {
+        // Check if there are any bookings associated with the customer
+        const bookingsQuery = 'SELECT * FROM booking WHERE customer_id = $1';
+        const bookings = await pool.query(bookingsQuery, [ssn]);
+
+        if (bookings.rowCount > 0) {
+            // If bookings exist, send a response indicating bookings need to be deleted first
+            return res.status(400).json({ message: "Please delete all bookings associated with this customer first." });
+        }
+
+        // If no bookings, proceed to delete the customer
+        const deleteCustomerQuery = 'DELETE FROM customer WHERE ssn = $1';
+        const result = await pool.query(deleteCustomerQuery, [ssn]);
+
+        if (result.rowCount === 0) {
+            // If the customer wasn't found, send an appropriate response
+            return res.status(404).json({ message: "Customer not found" });
+        }
+
+        // Customer deleted successfully
+        res.status(200).json({ message: "Customer deleted successfully" });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server error while attempting to delete customer");
+    }
+});
+
+app.put('/api/customers/:ssn', async (req, res) => {
+    try {
+        const { ssn } = req.params;
+        const { name, address, email, date_of_registration } = req.body;
+
+        const updateCustomerQuery = `
+            UPDATE customer
+            SET name = $1, address = $2, email = $3, date_of_registration = $4
+            WHERE ssn = $5
+            RETURNING *;
+        `;
+        const updatedCustomer = await pool.query(updateCustomerQuery, [name, address, email, date_of_registration, ssn]);
+
+        if (updatedCustomer.rowCount === 0) {
+            return res.status(404).json({ message: "Customer not found" });
+        }
+
+        res.json(updatedCustomer.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server error while updating customer");
+    }
+});
+
+app.post('/api/employee', async (req, res) => {
+    try {
+        const { employee_id, name, sin, hotel_id, role } = req.body;
+
+        // Adjusted SQL query to match the 'employee' table
+        const insertEmployeeQuery = `INSERT INTO employee (employee_id, name, sin, hotel_id, role) VALUES ($1, $2, $3, $4, $5) RETURNING *`;
+        const newEmployee = await pool.query(insertEmployeeQuery, [employee_id, name, sin, hotel_id, role]);
+
+        res.status(201).json(newEmployee.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server error while adding employee");
+    }
+});
+
+app.get('/api/employees', async (req, res) => {
+    try {
+        // Replace with your actual query to get employees from your database
+        const result = await pool.query('SELECT * FROM employee'); // Adjust the query as per your DB schema
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error while fetching employees');
+    }
+});
+
+app.delete('/api/employees/:employeeId', async (req, res) => {
+    try {
+        const { employeeId } = req.params;
+        // Use a SQL query to delete the employee by their ID
+        // Make sure to handle foreign key constraints if necessary
+        const deleteQuery = 'DELETE FROM employee WHERE employee_id = $1 RETURNING *';
+        const deletedEmployee = await pool.query(deleteQuery, [employeeId]);
+
+        if(deletedEmployee.rowCount === 0) {
+            // No employee found with the ID, or they could not be deleted
+            return res.status(404).json({ message: 'Employee not found or cannot be deleted due to dependency' });
+        }
+
+        res.json({ message: 'Employee deleted successfully' });
+    } catch (err) {
+        // Handle errors, e.g., foreign key violation
+        if (err.code === '23503') { // Assuming PostgreSQL for FK violation code
+            return res.status(400).json({ message: 'Cannot delete employee with dependent records' });
+        }
+        console.error(err.message);
+        res.status(500).send('Server error while deleting employee');
+    }
+});
+
+app.put('/api/employees/:employeeId', async (req, res) => {
+    const { employeeId } = req.params;
+    const { name, sin, hotel_id, role } = req.body;
+
+    try {
+        // SQL query to update the employee. 
+        // Make sure to adjust the table name and fields to match your database schema.
+        const updateEmployeeQuery = `
+            UPDATE employee
+            SET name = $1, sin = $2, hotel_id = $3, role = $4
+            WHERE employee_id = $5
+            RETURNING *;
+        `;
+
+        // Use a parameterized query to prevent SQL injection.
+        const updatedEmployee = await pool.query(updateEmployeeQuery, [name, sin, hotel_id, role, employeeId]);
+
+        if (updatedEmployee.rowCount === 0) {
+            // No employee was updated, which means the employee wasn't found.
+            return res.status(404).json({ message: 'Employee not found' });
+        }
+
+        // Send the updated employee as a response.
+        res.json(updatedEmployee.rows[0]);
+    } catch (err) {
+        // Log and send the error message.
+        console.error(err.message);
+        res.status(500).send('Server error while updating employee');
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 app.get("/all-chains", async (req, res) => {
@@ -106,104 +251,6 @@ app.get("/all-chains", async (req, res) => {
     }
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// USELESS ROUTES /////////////////////////////////////////////////////////
-// Create a Todo
-
-
-app.post("/todos", async (req, res) => {
-    try {
-        const { description } = req.body; // Corrected typo
-
-        // Ensure that description is provided in the request body
-        /*if (!description) {
-            return res.status(400).json({ message: "Description is required" });
-        }*/
-
-        // Insert new todo into the database
-        const newTodo = await pool.query("INSERT INTO todo (description) VALUES($1) RETURNING *", 
-        [description]);
-
-        // Send the newly created todo as a response
-        res.status(201).json(newTodo.rows[0]);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ message: "Server error" });
-    }
-});
-
-
-// get all todos
-
-app.get("/todos", async (req, res) => { 
-    try {
-        const allTodos = await pool.query("SELECT * FROM todo");
-        res.json(allTodos.rows);
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ message: "Server error" });
-    }
-});
-
-// get a todo
-app.get("/todos/:id", async (req, res) => { 
-    try {
-        const { id } = req.params;
-        const todo = await pool.query("SELECT * from todo WHERE todo_id = $1", [id])
-        res.json(todo.rows[0]);
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ message: "Server error" });
-    }
-});
-
-//update a todo
-
-app.put("/todos/:id", async (req, res) => {
-    try {
-        const {id} = req.params;
-        const {description} = req.body;
-        const updateTodo = await pool.query("UPDATE todo SET description = $1 WHERE todo_id = $2",[description, id])
-
-        res.json("Todo was updated!")
-        
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ message: "Server error" });
-    }
-
-});
-
-
-// delete a todo 
-app.delete("/todos/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-        const deleteTodo = await pool.query("DELETE FROM todo WHERE todo_id = $1", [id]);
-
-        res.json("Todo was deleted!");
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).json({ message: "Server error" });
-    }
-});
 
 
 app.listen(5000, () => {
