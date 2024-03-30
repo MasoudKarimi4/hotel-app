@@ -1,25 +1,274 @@
-import * as React from 'react';
+import React, { useState } from 'react';
+import { Button, Grid, Typography, Paper, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 
 
-export default function EmployeeApp() {
-  // navigate is how you go to other pages 
-  const navigate = useNavigate();
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
-    });
+function InsertCustomerModal({ open, onClose, onSubmit }) {
+  const [customer, setCustomer] = useState({
+    ssn: '', name: '', address: '', email: '', date_of_registration: ''
+  });
+
+  const handleChange = (e) => {
+    setCustomer({ ...customer, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = () => {
+    onSubmit(customer);
+    onClose();
   };
 
   return (
-    <div>
-      {/* Your JSX content for the editing page goes here */}
-      <h1>Employee App </h1>
-    </div>
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Add New Customer</DialogTitle>
+      <DialogContent>
+        <TextField name="ssn" label="SSN" onChange={handleChange} fullWidth margin="normal" />
+        <TextField name="name" label="Name" onChange={handleChange} fullWidth margin="normal" />
+        <TextField name="address" label="Address" onChange={handleChange} fullWidth margin="normal" />
+        <TextField name="email" label="Email" onChange={handleChange} fullWidth margin="normal" />
+        <TextField name="date_of_registration" label="Date of Registration" type="date" onChange={handleChange} fullWidth margin="normal" InputLabelProps={{ shrink: true }} />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleSubmit}>Submit</Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+function InsertEmployeeModal({ open, onClose, onSubmit }) {
+    const [employee, setEmployee] = useState({
+      employee_id: '', name: '', sin: '', hotel_id: '', role: ''
+    });
+  
+    const handleChange = (e) => {
+      setEmployee({ ...employee, [e.target.name]: e.target.value });
+    };
+  
+    const handleSubmit = () => {
+      onSubmit(employee);
+      onClose();
+    };
+  
+    return (
+      <Dialog open={open} onClose={onClose}>
+        <DialogTitle>Add New Employee</DialogTitle>
+        <DialogContent>
+          <TextField name="employee_id" label="Employee ID" onChange={handleChange} fullWidth margin="normal" />
+          <TextField name="name" label="Name" onChange={handleChange} fullWidth margin="normal" />
+          <TextField name="sin" label="SIN" onChange={handleChange} fullWidth margin="normal" />
+          <TextField name="hotel_id" label="Hotel ID" onChange={handleChange} fullWidth margin="normal" />
+          <TextField name="role" label="Role" onChange={handleChange} fullWidth margin="normal" />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={handleSubmit}>Submit</Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+
+  function InsertHotelModal({ open, onClose, onSubmit }) {
+    const [hotel, setHotel] = useState({
+      chain_id: '', rating: '', manager_id: '', num_rooms: '', address: '', phone_number: ''
+    });
+  
+    const handleChange = (e) => {
+      setHotel({ ...hotel, [e.target.name]: e.target.value });
+    };
+  
+    const handleSubmit = async () => {
+      try {
+          const response = await onSubmit(hotel);
+          if (!response.ok) {
+              const errorData = await response.json();
+              alert(errorData.message); // Show error dialog
+          } else {
+              alert('Hotel added successfully!'); // Show success dialog
+              onClose();
+          }
+      } catch (error) {
+          console.error('Failed to insert hotel:', error);
+          alert('An error occurred while adding the hotel.'); // Show error dialog
+      }
+  };
+  
+    return (
+      <Dialog open={open} onClose={onClose}>
+        <DialogTitle>Add New Hotel</DialogTitle>
+        <DialogContent>
+          <TextField name="chain_id" label="Chain ID" onChange={handleChange} fullWidth margin="normal" />
+          <TextField name="rating" label="Rating" onChange={handleChange} fullWidth margin="normal" />
+          <TextField name="manager_id" label="Manager ID" onChange={handleChange} fullWidth margin="normal" />
+          <TextField name="num_rooms" label="Number of Rooms" onChange={handleChange} fullWidth margin="normal" />
+          <TextField name="address" label="Address" onChange={handleChange} fullWidth margin="normal" />
+          <TextField name="phone_number" label="Phone Number" onChange={handleChange} fullWidth margin="normal" />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={handleSubmit}>Submit</Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+
+  const handleInsertHotel = async (hotelData) => {
+    try {
+        const response = await fetch('http://localhost:5000/api/hotels', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(hotelData),
+        });
+        return response; 
+        
+    } catch (error) {
+        console.error('Failed to insert hotel:', error);
+        // Handle error here
+    }
+};
+
+  
+  
+
+
+
+
+
+export default function EmployeeApp() {
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [modalEntity, setModalEntity] = useState('');
+  const navigate = useNavigate();
+
+  const handleInsertEmployee = async (employeeData) => {
+    try {
+        const response = await fetch('http://localhost:5000/api/employee', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(employeeData),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to add employee');
+        }
+
+        const addedEmployee = await response.json();
+        // Update the state or UI as needed, e.g., refresh employee list
+    } catch (error) {
+        console.error('Failed to insert employee:', error);
+        // Handle errors, e.g., show an alert or notification
+    }
+};
+
+
+const handleAction = (entity, action) => {
+  if (entity === 'customers' || entity === 'employees' || entity === 'hotels') {
+    switch (action) {
+      case 'insert':
+        setModalEntity(entity);
+        setModalOpen(true);
+        break;
+      case 'delete':
+        navigate(`/employee-app/delete-${entity}`);
+        break;
+      case 'update':
+        navigate(`/employee-app/update-${entity}`);
+        break;
+      default:
+        console.log(`${action} for ${entity}`);
+    }
+  } else if (entity === 'hotels') {
+    if (action === 'insert') {
+      setModalEntity('hotel');
+      setModalOpen(true);
+    }
+    // ... handle delete and update for hotels here ...
+  } else {
+    console.log(`${action} for ${entity}`);
+    // Handle other entities' actions here
+  }
+}
+
+
+
+  const handleModalClose = () => setModalOpen(false);
+
+  const handleInsertCustomer = async (customerData) => {
+
+    if (!Number.isInteger(parseInt(customerData.ssn))) {
+      alert("SSN must be an integer");
+      return;
+    }
+
+    try {
+        const response = await fetch('http://localhost:5000/addcustomer', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(customerData),
+        });
+        if (!response.ok) {
+            if (response.status === 409) {
+                // Conflict error - SSN already exists
+                alert("SSN already exists in the database.");
+            } else {
+                throw new Error('Server error');
+            }
+        } else {
+            // Handle success
+            const customer = await response.json();
+            // Display success message or update state
+        }
+        // Handle success here
+    } catch (error) {
+        console.error('Failed to insert customer:', error);
+        // Handle error here
+    }
+};
+
+
+
+
+
+  return (
+    <Paper style={{ padding: '20px', margin: '20px' }}>
+      <Typography variant="h4" style={{ marginBottom: '20px' }}>Employee Management Panel</Typography>
+      <Grid container spacing={3}>
+        {['customers', 'employees', 'hotels', 'rooms'].map((entity) => (
+          <Grid item xs={12} sm={6} md={3} key={entity}>
+            <Typography variant="h6" style={{ textTransform: 'capitalize' }}>{entity}</Typography>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginTop: '10px' }}>
+              <Button variant="outlined" color="primary" onClick={() => handleAction(entity, 'insert')}>
+                Insert {entity}
+              </Button>
+              <Button variant="outlined" color="secondary" onClick={() => handleAction(entity, 'delete')}>
+                Delete {entity}
+              </Button>
+              <Button variant="contained" color="primary" onClick={() => handleAction(entity, 'update')}>
+                Update {entity}
+              </Button>
+            </div>
+          </Grid>
+        ))}
+      </Grid>
+      {modalEntity === 'customers' && (
+        <InsertCustomerModal open={isModalOpen} onClose={handleModalClose} onSubmit={handleInsertCustomer} />
+      )}
+      {modalEntity === 'employees' && (
+                <InsertEmployeeModal 
+                    open={isModalOpen}
+                    onClose={handleModalClose}
+                    onSubmit={handleInsertEmployee}
+                />
+            )}
+      {modalEntity === 'hotel' && (
+      <InsertHotelModal 
+        open={isModalOpen} 
+        onClose={handleModalClose} 
+        onSubmit={handleInsertHotel}
+      />
+    )}
+
+            
+    </Paper>
   );
 }
