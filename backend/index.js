@@ -187,7 +187,7 @@ app.put('/api/employees/:employeeId', async (req, res) => {
 
 // Example route in your Express application
 app.post('/api/hotels', async (req, res) => {
-    const { chain_id, rating, manager_id, num_rooms, address, phone_number } = req.body;
+    const { name,chain_id, rating, manager_id, num_rooms, address, phone_number } = req.body;
 
     try {
         // Check if chain_id exists in hotel_chain table
@@ -204,10 +204,10 @@ app.post('/api/hotels', async (req, res) => {
 
         // Insert hotel data into database
         const newHotel = await pool.query(`
-            INSERT INTO hotel (chain_id, rating, manager_id, num_rooms, address, phone_number) 
-            VALUES ($1, $2, $3, $4, $5, $6) 
+            INSERT INTO hotel (name,chain_id, rating, manager_id, num_rooms, address, phone_number) 
+            VALUES ($1, $2, $3, $4, $5, $6,$7) 
             RETURNING *;
-        `, [chain_id, rating, manager_id, num_rooms, address, phone_number]);
+        `, [name,chain_id, rating, manager_id, num_rooms, address, phone_number]);
 
         // Send success response with the newly added hotel data
         res.status(201).json({ message: 'Hotel added successfully', hotel: newHotel.rows[0] });
@@ -296,6 +296,112 @@ app.post("/api/bookings", async (req, res) => {
     try {
         // Destructure the required fields from the request body
         const { customer_id, room_id, check_in_date, check_out_date } = req.body;
+// In your backend (e.g., index.js or wherever you handle routes)
+app.post('/api/rooms', async (req, res) => {
+    const { hotel_id, room_number, price, capacity, view, damages, extendable } = req.body;
+    
+    try {
+        // Check if the hotel_id exists
+        const hotelCheckQuery = 'SELECT * FROM hotel WHERE hotel_id = $1';
+        const hotelCheckResult = await pool.query(hotelCheckQuery, [hotel_id]);
+
+        if (hotelCheckResult.rows.length === 0) {
+            return res.status(404).json({ message: 'Hotel not found' });
+        }
+
+        // Proceed to insert the room
+        const insertRoomQuery = `
+            INSERT INTO room (hotel_id, room_number, price, capacity, view, damages, extendable)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING *;
+        `;
+        const newRoom = await pool.query(insertRoomQuery, [hotel_id, room_number, price, capacity, view, damages, extendable]);
+        res.status(201).json(newRoom.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error while attempting to insert room');
+    }
+});
+
+
+
+
+// DELETE endpoint for deleting a room
+app.delete('/api/rooms/:room_id', async (req, res) => {
+    const { room_id } = req.params;
+
+    try {
+        // Check for any associated bookings
+        const bookingCheckQuery = 'SELECT * FROM booking WHERE room_id = $1';
+        const bookingCheck = await pool.query(bookingCheckQuery, [room_id]);
+        if (bookingCheck.rowCount > 0) {
+            return res.status(400).json({ message: "This room has associated bookings and cannot be deleted." });
+        }
+
+        // Check for any associated rentals
+        const rentalCheckQuery = 'SELECT * FROM renting WHERE room_id = $1';
+        const rentalCheck = await pool.query(rentalCheckQuery, [room_id]);
+        if (rentalCheck.rowCount > 0) {
+            return res.status(400).json({ message: "This room has associated rentals and cannot be deleted." });
+        }
+
+        // Delete the room if there are no associated bookings or rentals
+        const deleteQuery = 'DELETE FROM room WHERE room_id = $1';
+        const result = await pool.query(deleteQuery, [room_id]);
+
+        if (result.rowCount > 0) {
+            res.json({ message: 'Room deleted successfully' });
+        } else {
+            res.status(404).json({ message: 'Room not found' });
+        }
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error while attempting to delete room');
+    }
+});
+
+
+app.get('/api/rooms', async (req, res) => {
+    try {
+        // Query to select all rooms from your database
+        const query = 'SELECT * FROM room';
+        const rooms = await pool.query(query);
+        res.json(rooms.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error while attempting to fetch rooms');
+    }
+});
+
+
+// PUT endpoint for updating a room's details
+app.put('/api/rooms/:room_id', async (req, res) => {
+    const { room_id } = req.params;
+    const { hotel_id, room_number, price, capacity, view, damages, extendable } = req.body;
+
+    try {
+        // Update room details
+        const updateRoomQuery = `
+            UPDATE room
+            SET hotel_id = $1, room_number = $2, price = $3, 
+                capacity = $4, view = $5, damages = $6, extendable = $7
+            WHERE room_id = $8
+            RETURNING *;
+        `;
+        const updatedRoom = await pool.query(updateRoomQuery, 
+            [hotel_id, room_number, price, capacity, view, damages, extendable, room_id]);
+
+        if (updatedRoom.rowCount === 0) {
+            return res.status(404).json({ message: "Room not found" });
+        }
+
+        res.json(updatedRoom.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server error while attempting to update room");
+    }
+});
+
 
         // Get today's date
         const date_of_booking = new Date().toISOString().slice(0, 10); // Format: YYYY-MM-DD

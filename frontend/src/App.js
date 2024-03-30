@@ -17,6 +17,8 @@ import EmployeeSignIn from "./components/Employee";
 import ChainView from './components/ChainView';
 import DeleteEmployees from './components/DeleteEmployees'; // Adjust the import path as needed
 import UpdateEmployees from './components/UpdateEmployees'; // Adjust the import path as needed
+import DeleteRooms from './components/DeleteRooms';
+import UpdateRooms from './components/UpdateRooms';
 
 
 
@@ -38,7 +40,8 @@ function App() {
             <Route path="/employee-app/update-employees" element={<UpdateEmployees />} />
             <Route path="/employee-app/delete-hotels" element={<DeleteHotels />} />
             <Route path="/employee-app/update-hotels" element={<UpdateHotels />} />
-
+            <Route path="/employee-app/delete-rooms" element={<DeleteRooms />} />
+            <Route path="/employee-app/update-rooms" element={<UpdateRooms />} />
 
             
 
