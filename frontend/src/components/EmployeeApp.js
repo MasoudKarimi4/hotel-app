@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { Button, Grid, Typography, Paper, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { Button, Grid, Typography, Paper, Dialog, DialogActions, DialogContent, DialogTitle, TextField,FormControlLabel,Checkbox } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+
+
+
 
 
 
@@ -71,7 +74,7 @@ function InsertEmployeeModal({ open, onClose, onSubmit }) {
 
   function InsertHotelModal({ open, onClose, onSubmit }) {
     const [hotel, setHotel] = useState({
-      chain_id: '', rating: '', manager_id: '', num_rooms: '', address: '', phone_number: ''
+      name: '', chain_id: '', rating: '', manager_id: '', num_rooms: '', address: '', phone_number: ''
     });
   
     const handleChange = (e) => {
@@ -84,6 +87,7 @@ function InsertEmployeeModal({ open, onClose, onSubmit }) {
           if (!response.ok) {
               const errorData = await response.json();
               alert(errorData.message); // Show error dialog
+              onClose();
           } else {
               alert('Hotel added successfully!'); // Show success dialog
               onClose();
@@ -98,6 +102,7 @@ function InsertEmployeeModal({ open, onClose, onSubmit }) {
       <Dialog open={open} onClose={onClose}>
         <DialogTitle>Add New Hotel</DialogTitle>
         <DialogContent>
+          <TextField name="name" label="Hotel Name" onChange={handleChange} fullWidth margin="normal" />
           <TextField name="chain_id" label="Chain ID" onChange={handleChange} fullWidth margin="normal" />
           <TextField name="rating" label="Rating" onChange={handleChange} fullWidth margin="normal" />
           <TextField name="manager_id" label="Manager ID" onChange={handleChange} fullWidth margin="normal" />
@@ -161,8 +166,83 @@ export default function EmployeeApp() {
 };
 
 
+
+
+function InsertRoomModal({ open, onClose, onSubmit }) {
+  const [room, setRoom] = useState({
+    hotel_id: '',
+    room_number: '',
+    price: '',
+    capacity: '',
+    view: '',
+    damages: '',
+    extendable: false, // Assuming extendable is a boolean
+  });
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setRoom({
+      ...room,
+      [name]: type === 'checkbox' ? checked : value,
+    });
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const response = await onSubmit(room);
+      if (!response.ok) {
+        const errorData = await response.json();
+        alert(errorData.message);
+      } else {
+        alert('Room added successfully!');
+        onClose();
+      }
+    } catch (error) {
+      console.error('Failed to insert room:', error);
+      alert('An error occurred while adding the room.');
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Add New Room</DialogTitle>
+      <DialogContent>
+        <TextField name="hotel_id" label="Hotel ID" type="number" onChange={handleChange} fullWidth margin="normal" />
+        <TextField name="room_number" label="Room Number" type="number" onChange={handleChange} fullWidth margin="normal" />
+        <TextField name="price" label="Price" type="number" onChange={handleChange} fullWidth margin="normal" />
+        <TextField name="capacity" label="Capacity" type="number" onChange={handleChange} fullWidth margin="normal" />
+        <TextField name="view" label="View" onChange={handleChange} fullWidth margin="normal" />
+        <TextField name="damages" label="Damages" onChange={handleChange} fullWidth margin="normal" />
+        <FormControlLabel
+          control={<Checkbox checked={room.extendable} onChange={handleChange} name="extendable" />}
+          label="Extendable"
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleSubmit}>Submit</Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+// Add this new function in your EmployeeApp component
+const handleInsertRoom = async (roomData) => {
+  const response = await fetch('http://localhost:5000/api/rooms', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(roomData),
+  });
+
+  return response;
+};
+
+
+
+
+
 const handleAction = (entity, action) => {
-  if (entity === 'customers' || entity === 'employees' || entity === 'hotels') {
+  if (entity === 'customers' || entity === 'employees' || entity === 'hotels' || entity === 'rooms') {
     switch (action) {
       case 'insert':
         setModalEntity(entity);
@@ -179,7 +259,7 @@ const handleAction = (entity, action) => {
     }
   } else if (entity === 'hotels') {
     if (action === 'insert') {
-      setModalEntity('hotel');
+      setModalEntity('hotels');
       setModalOpen(true);
     }
     // ... handle delete and update for hotels here ...
@@ -260,13 +340,20 @@ const handleAction = (entity, action) => {
                     onSubmit={handleInsertEmployee}
                 />
             )}
-      {modalEntity === 'hotel' && (
+      {modalEntity === 'hotels' && (
       <InsertHotelModal 
         open={isModalOpen} 
         onClose={handleModalClose} 
         onSubmit={handleInsertHotel}
       />
     )}
+    {modalEntity === 'rooms' && (
+  <InsertRoomModal
+    open={isModalOpen}
+    onClose={handleModalClose}
+    onSubmit={handleInsertRoom}
+  />
+)}
 
             
     </Paper>

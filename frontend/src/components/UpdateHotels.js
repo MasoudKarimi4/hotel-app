@@ -75,11 +75,11 @@ function UpdateHotels() {
                 <TableHead>
                     <TableRow>
                         <TableCell>Hotel ID</TableCell>
+                        <TableCell>Chain ID</TableCell>
                         <TableCell>Name</TableCell>
                         <TableCell>Rating</TableCell>
                         <TableCell>Manager ID</TableCell>
-                        <TableCell>Number of Rooms</TableCell>
-                        <TableCell>Address</TableCell>
+                        <TableCell>Number Of Rooms</TableCell>
                         <TableCell>Phone Number</TableCell>
                         <TableCell>Actions</TableCell>
                     </TableRow>
@@ -88,9 +88,10 @@ function UpdateHotels() {
                     {hotels.map((hotel) => (
                         <TableRow key={hotel.hotel_id}>
                             <TableCell>{isEditing(hotel.hotel_id) ? <TextField name="hotel_id" value={editedHotel.hotel_id} onChange={handleChange} /> : hotel.hotel_id}</TableCell>
+                            <TableCell>{isEditing(hotel.hotel_id) ? <TextField name="chain_id" value={editedHotel.chain_id} onChange={handleChange} /> : hotel.chain_id}</TableCell>
+
                             <TableCell>{isEditing(hotel.hotel_id) ? <TextField name="name" value={editedHotel.name} onChange={handleChange} /> : hotel.name}</TableCell>
 
-                            <TableCell>{isEditing(hotel.hotel_id) ? <TextField name="chain_id" value={editedHotel.chain_id} onChange={handleChange} /> : hotel.chain_id}</TableCell>
                             <TableCell>{isEditing(hotel.hotel_id) ? <TextField name="rating" value={editedHotel.rating} onChange={handleChange} /> : hotel.rating}</TableCell>
                             <TableCell>{isEditing(hotel.hotel_id) ? <TextField name="manager_id" value={editedHotel.manager_id} onChange={handleChange} /> : hotel.manager_id}</TableCell>
                             <TableCell>{isEditing(hotel.hotel_id) ? <TextField name="num_rooms" value={editedHotel.num_rooms} onChange={handleChange} /> : hotel.num_rooms}</TableCell>

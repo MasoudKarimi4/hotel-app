@@ -81,6 +81,7 @@ function UpdateEmployees() {
             <Typography variant="h4" style={{ padding: '20px', textAlign: 'center' }}>Update Employees</Typography>
             <Table>
             <TableHead>
+                
     <TableRow>
         <TableCell>Employee ID</TableCell>
         <TableCell>Name</TableCell>
