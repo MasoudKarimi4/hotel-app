@@ -7,7 +7,7 @@ CREATE TABLE hotel_chain(
 	address TEXT,
 	email TEXT,
 	phone_number TEXT
-)
+);
 
 CREATE TABLE hotel(
 	hotel_id SERIAL PRIMARY KEY,
@@ -17,14 +17,14 @@ CREATE TABLE hotel(
 	num_rooms int,
 	address TEXT,
 	phone_number TEXT
-)
+);
 
 CREATE TABLE employee(
 	employee_id SERIAL PRIMARY KEY,
 	name TEXT,
 	sin int,
 	hotel_id int REFERENCES hotel(hotel_id)
-)
+);
 
 
 
@@ -37,12 +37,12 @@ CREATE TABLE room(
 	view TEXT,
 	damages TEXT,
 	extendable BOOLEAN
-)
+);
 
 CREATE TABLE room_amenities(
 	room_amenity_id int REFERENCES room(room_id),
 	amenity TEXT
-)
+);
 
 CREATE TABLE customer(
 	ssn int PRIMARY KEY,
@@ -50,7 +50,7 @@ CREATE TABLE customer(
 	address TEXT,
 	email TEXT,
 	date_of_registration DATE
-)
+);
 
 CREATE TABLE booking(
 	booking_id SERIAL PRIMARY KEY,
@@ -59,7 +59,7 @@ CREATE TABLE booking(
 	date_of_booking DATE,
 	check_in_date DATE,
 	check_out_date DATE
-)
+);
 
 
 
@@ -70,13 +70,13 @@ CREATE TABLE renting(
 	room_id int REFERENCES room(room_id),
 	start_date DATE,
 	end_date DATE
-)
+);
 
 CREATE TABLE payment(
 	payment_rent_id int REFERENCES renting(rent_id),
 	date_of_transaction DATE,
 	payment_info TEXT
-)
+);
 
 
 CREATE TABLE booking_archives(
@@ -86,8 +86,7 @@ CREATE TABLE booking_archives(
 	date_of_booking DATE,
 	check_in_date DATE,
 	check_out_date DATE
-)
-
+);
 
 CREATE TABLE renting_archives(
 	rent_id SERIAL PRIMARY KEY,
@@ -96,7 +95,7 @@ CREATE TABLE renting_archives(
 	room_id int ,
 	start_date DATE,
 	end_date DATE
-)
+);
 
 --add foreign keys for HOTEL
 ALTER TABLE hotel 

@@ -13,19 +13,30 @@ import MenuItem from '@mui/material/MenuItem';
 import Slider from '@mui/material/Slider';
 
 import Filters from './CustomerFilters';
+import Booking from './Booking';
 
 const defaultTheme = createTheme();
 
 export default function CustomerApp() {
   const navigate = useNavigate();
   const [priceRange, setPriceRange] = React.useState(100); // Initial value for price range slider
+  const [formData, setFormData] = React.useState({
+    ssn: '',
+    checkInDate: '',
+    checkOutDate: ''
+  });
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get('email'),
-      password: data.get('password'),
+    console.log(formData);
+    // Here you can send the form data to your backend
+  };
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value
     });
   };
 
@@ -101,11 +112,13 @@ export default function CustomerApp() {
           </Box>
         </Toolbar>
       </AppBar>
-
+      
 
       <Filters/>
 
+      <Booking formData={formData} handleChange={handleChange} handleSubmit={handleSubmit}/>
 
+      
     </ThemeProvider>
- );
+  );
 }

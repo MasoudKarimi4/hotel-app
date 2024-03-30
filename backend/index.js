@@ -291,7 +291,32 @@ app.put('/api/hotels/:hotel_id', async (req, res) => {
     }
 });
 
+//insert booking into booking table
+app.post("/api/bookings", async (req, res) => {
+    try {
+        // Destructure the required fields from the request body
+        const { customer_id, room_id, check_in_date, check_out_date } = req.body;
 
+        // Get today's date
+        const date_of_booking = new Date().toISOString().slice(0, 10); // Format: YYYY-MM-DD
+
+        // SQL query to insert a new booking into the database
+        const newBookingQuery = `
+            INSERT INTO booking (customer_id, room_id, date_of_booking, check_in_date, check_out_date) 
+            VALUES ($1, $2, $3, $4, $5) RETURNING *;
+        `;
+        
+        // Execute the query
+        const newBooking = await pool.query(newBookingQuery, [customer_id, room_id, date_of_booking, check_in_date, check_out_date]);
+
+        // Send the newly created booking as a response
+        res.status(201).json(newBooking.rows[0]);
+    } catch (error) {
+        // Handle errors
+        console.error('Error creating new booking:', error);
+        res.status(500).send('Server error');
+    }
+});
 
 
 
