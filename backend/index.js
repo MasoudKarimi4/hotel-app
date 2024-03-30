@@ -185,6 +185,117 @@ app.put('/api/employees/:employeeId', async (req, res) => {
     }
 });
 
+// Example route in your Express application
+app.post('/api/hotels', async (req, res) => {
+    const { chain_id, rating, manager_id, num_rooms, address, phone_number } = req.body;
+
+    try {
+        // Check if chain_id exists in hotel_chain table
+        const chainExists = await pool.query("SELECT EXISTS(SELECT 1 FROM hotel_chain WHERE chain_id = $1)", [chain_id]);
+        if (!chainExists.rows[0].exists) {
+            return res.status(400).json({ message: 'Invalid chain_id' });
+        }
+
+        // Check if manager_id exists in employees table
+        const managerExists = await pool.query("SELECT EXISTS(SELECT 1 FROM employee WHERE employee_id = $1)", [manager_id]);
+        if (!managerExists.rows[0].exists) {
+            return res.status(400).json({ message: 'Invalid manager_id' });
+        }
+
+        // Insert hotel data into database
+        const newHotel = await pool.query(`
+            INSERT INTO hotel (chain_id, rating, manager_id, num_rooms, address, phone_number) 
+            VALUES ($1, $2, $3, $4, $5, $6) 
+            RETURNING *;
+        `, [chain_id, rating, manager_id, num_rooms, address, phone_number]);
+
+        // Send success response with the newly added hotel data
+        res.status(201).json({ message: 'Hotel added successfully', hotel: newHotel.rows[0] });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+});
+
+app.get('/api/hotels', async (req, res) => {
+    try {
+        // Replace with your actual query to get hotels from your database
+        const result = await pool.query('SELECT * FROM hotel'); // Adjust the query as per your DB schema
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error while fetching hotels');
+    }
+});
+
+app.delete('/api/hotels/:hotelId', async (req, res) => {
+    const { hotelId } = req.params;
+    try {
+        // Check for any dependencies or related records before deleting
+        // Example: Check if there are employees associated with the hotel
+        const employeesQuery = 'SELECT * FROM employee WHERE hotel_id = $1';
+        const employees = await pool.query(employeesQuery, [hotelId]);
+
+        if (employees.rowCount > 0) {
+            // If there are employees associated with the hotel, inform the user to handle them first
+            return res.status(400).json({ message: "Please reassign or delete all employees associated with this hotel first." });
+        }
+
+        // Proceed to delete the hotel if no dependencies exist
+        const deleteHotelQuery = 'DELETE FROM hotel WHERE hotel_id = $1';
+        const result = await pool.query(deleteHotelQuery, [hotelId]);
+
+        if (result.rowCount === 0) {
+            // If the hotel wasn't found, send an appropriate response
+            return res.status(404).json({ message: "Hotel not found" });
+        }
+
+        // Hotel deleted successfully
+        res.status(200).json({ message: "Hotel deleted successfully" });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server error while attempting to delete hotel");
+    }
+});
+
+app.put('/api/hotels/:hotel_id', async (req, res) => {
+    const { hotel_id } = req.params;
+    const { chain_id, rating, manager_id, num_rooms, address, phone_number, name } = req.body;
+
+    try {
+        // Update hotel information
+        const updateHotelQuery = `
+            UPDATE hotel 
+            SET 
+                chain_id = $1, 
+                rating = $2, 
+                manager_id = $3, 
+                num_rooms = $4, 
+                address = $5, 
+                phone_number = $6,
+                name = $7
+            WHERE hotel_id = $8
+        `;
+        const result = await pool.query(updateHotelQuery, [chain_id, rating, manager_id, num_rooms, address, phone_number, name, hotel_id]);
+
+        if (result.rowCount === 0) {
+            // No hotel found to update
+            return res.status(404).json({ message: "Hotel not found" });
+        }
+
+        // Hotel updated successfully
+        res.status(200).json({ message: "Hotel updated successfully" });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server error while attempting to update hotel");
+    }
+});
+
+
+
+
+
+
 
 
 

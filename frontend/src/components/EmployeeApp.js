@@ -3,6 +3,8 @@ import { Button, Grid, Typography, Paper, Dialog, DialogActions, DialogContent, 
 import { useNavigate } from 'react-router-dom';
 
 
+
+
 function InsertCustomerModal({ open, onClose, onSubmit }) {
   const [customer, setCustomer] = useState({
     ssn: '', name: '', address: '', email: '', date_of_registration: ''
@@ -67,6 +69,68 @@ function InsertEmployeeModal({ open, onClose, onSubmit }) {
     );
   }
 
+  function InsertHotelModal({ open, onClose, onSubmit }) {
+    const [hotel, setHotel] = useState({
+      chain_id: '', rating: '', manager_id: '', num_rooms: '', address: '', phone_number: ''
+    });
+  
+    const handleChange = (e) => {
+      setHotel({ ...hotel, [e.target.name]: e.target.value });
+    };
+  
+    const handleSubmit = async () => {
+      try {
+          const response = await onSubmit(hotel);
+          if (!response.ok) {
+              const errorData = await response.json();
+              alert(errorData.message); // Show error dialog
+          } else {
+              alert('Hotel added successfully!'); // Show success dialog
+              onClose();
+          }
+      } catch (error) {
+          console.error('Failed to insert hotel:', error);
+          alert('An error occurred while adding the hotel.'); // Show error dialog
+      }
+  };
+  
+    return (
+      <Dialog open={open} onClose={onClose}>
+        <DialogTitle>Add New Hotel</DialogTitle>
+        <DialogContent>
+          <TextField name="chain_id" label="Chain ID" onChange={handleChange} fullWidth margin="normal" />
+          <TextField name="rating" label="Rating" onChange={handleChange} fullWidth margin="normal" />
+          <TextField name="manager_id" label="Manager ID" onChange={handleChange} fullWidth margin="normal" />
+          <TextField name="num_rooms" label="Number of Rooms" onChange={handleChange} fullWidth margin="normal" />
+          <TextField name="address" label="Address" onChange={handleChange} fullWidth margin="normal" />
+          <TextField name="phone_number" label="Phone Number" onChange={handleChange} fullWidth margin="normal" />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={handleSubmit}>Submit</Button>
+        </DialogActions>
+      </Dialog>
+    );
+  }
+
+  const handleInsertHotel = async (hotelData) => {
+    try {
+        const response = await fetch('http://localhost:5000/api/hotels', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(hotelData),
+        });
+        return response; 
+        
+    } catch (error) {
+        console.error('Failed to insert hotel:', error);
+        // Handle error here
+    }
+};
+
+  
+  
+
 
 
 
@@ -97,28 +161,33 @@ export default function EmployeeApp() {
 };
 
 
-  const handleAction = (entity, action) => {
-    if (entity === 'customers' || entity === 'employees') {
-        switch (action) {
-            case 'insert':
-                setModalEntity(entity);
-                setModalOpen(true);
-                break;
-            case 'delete':
-                navigate(`/employee-app/delete-${entity}`);
-                break;
-            case 'update':
-                navigate(`/employee-app/update-${entity}`);
-                break;
-            default:
-                console.log(`${action} for ${entity}`);
-                // Handle other actions here
-        }
-    } else {
+const handleAction = (entity, action) => {
+  if (entity === 'customers' || entity === 'employees' || entity === 'hotels') {
+    switch (action) {
+      case 'insert':
+        setModalEntity(entity);
+        setModalOpen(true);
+        break;
+      case 'delete':
+        navigate(`/employee-app/delete-${entity}`);
+        break;
+      case 'update':
+        navigate(`/employee-app/update-${entity}`);
+        break;
+      default:
         console.log(`${action} for ${entity}`);
-        // Handle other entities' actions here
     }
-};
+  } else if (entity === 'hotels') {
+    if (action === 'insert') {
+      setModalEntity('hotel');
+      setModalOpen(true);
+    }
+    // ... handle delete and update for hotels here ...
+  } else {
+    console.log(`${action} for ${entity}`);
+    // Handle other entities' actions here
+  }
+}
 
 
 
@@ -191,6 +260,15 @@ export default function EmployeeApp() {
                     onSubmit={handleInsertEmployee}
                 />
             )}
+      {modalEntity === 'hotel' && (
+      <InsertHotelModal 
+        open={isModalOpen} 
+        onClose={handleModalClose} 
+        onSubmit={handleInsertHotel}
+      />
+    )}
+
+            
     </Paper>
   );
 }

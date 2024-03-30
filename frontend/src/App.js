@@ -4,6 +4,11 @@ import SignIn from "./components/Login";
 import EmployeeApp from "./components/EmployeeApp";
 import DeleteCustomers from './components/DeleteCustomers';
 import UpdateCustomers from './components/UpdateCustomers'; 
+import DeleteHotels from './components/DeleteHotels'; // Import the component
+import UpdateHotels from './components/UpdateHotels'; // Import the component
+
+
+
 
 import CustomerApp from "./components/CustomerApp";
 import CreateAccount from "./components/accounts/CreateAccount";
@@ -31,6 +36,8 @@ function App() {
             <Route path="/employee-app/update-customers" element={<UpdateCustomers />} />
             <Route path="/employee-app/delete-employees" element={<DeleteEmployees />} />
             <Route path="/employee-app/update-employees" element={<UpdateEmployees />} />
+            <Route path="/employee-app/delete-hotels" element={<DeleteHotels />} />
+            <Route path="/employee-app/update-hotels" element={<UpdateHotels />} />
 
 
             
