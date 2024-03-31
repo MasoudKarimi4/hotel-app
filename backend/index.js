@@ -575,7 +575,7 @@ app.get("/all-chains", async (req, res) => {
 app.get('/filter-hotels', async (req, res) => {
     console.log("Received filter-hotels get request");
 
-    const { address, rating, chain_id, capacity, view, date1, date2 } = req.query;
+    const { address, rating, chain_id, capacity, view, date1, date2, price } = req.query;
 
     // Start with selecting hotels and rooms
     let query = `
@@ -590,6 +590,7 @@ app.get('/filter-hotels', async (req, res) => {
             WHERE (booking.check_in_date < $2 AND booking.check_out_date > $1)
         )`;
 
+    console.log(price)
     const params = [date1, date2];
     let paramCounter = params.length + 1;
 
@@ -615,6 +616,11 @@ app.get('/filter-hotels', async (req, res) => {
     if (capacity) {
         query += ` AND room.capacity >= $${paramCounter}`;
         params.push(capacity);
+        paramCounter++;
+    }
+    if (price) {
+        query += ` AND room.price <= $${paramCounter}`;
+        params.push(price);
         paramCounter++;
     }
 

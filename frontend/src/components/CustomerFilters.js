@@ -87,6 +87,7 @@ export default function Filters() {
   if (!roomView) newErrors.roomView = true;
   if (!chain_id) newErrors.chain_id = true;
   if (!people) newErrors.people = true;
+  
 
   setErrors(newErrors);
 
@@ -99,6 +100,7 @@ export default function Filters() {
     if (roomView) queryParams.append('roomView', roomView);
     if (chain_id) queryParams.append('chain_id', chain_id);
     if (people) queryParams.append('people', people)
+    if (priceRange) queryParams.append('priceRange', priceRange)
 
     // Convert URLSearchParams object to a JSON object
     const paramsObject = Object.fromEntries(queryParams.entries());
@@ -120,7 +122,8 @@ export default function Filters() {
       capacity:paramsObject.people,
       view:paramsObject.roomView,
       date1:paramsObject.dates,
-      date2:paramsObject.dates2
+      date2:paramsObject.dates2,
+      price:paramsObject.priceRange
    };
 
    console.log(filters)
@@ -238,7 +241,15 @@ export default function Filters() {
               <MenuItem value="sea">CityD</MenuItem>
             </TextField>
 
-
+            <Slider
+              value={priceRange}
+              onChange={handlePriceRangeChange}
+              valueLabelDisplay="auto"
+              aria-labelledby="price-range-slider"
+              min={0}
+              max={400}
+              sx={{ width: '200px' }}
+            />
 
 
 
