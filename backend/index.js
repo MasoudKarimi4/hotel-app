@@ -292,10 +292,7 @@ app.put('/api/hotels/:hotel_id', async (req, res) => {
 });
 
 //insert booking into booking table
-app.post("/api/bookings", async (req, res) => {
-    try {
-        // Destructure the required fields from the request body
-        const { customer_id, room_id, check_in_date, check_out_date } = req.body;
+
 // In your backend (e.g., index.js or wherever you handle routes)
 app.post('/api/rooms', async (req, res) => {
     const { hotel_id, room_number, price, capacity, view, damages, extendable } = req.body;
@@ -363,15 +360,14 @@ app.delete('/api/rooms/:room_id', async (req, res) => {
 
 app.get('/api/rooms', async (req, res) => {
     try {
-        // Query to select all rooms from your database
-        const query = 'SELECT * FROM room';
-        const rooms = await pool.query(query);
+        const rooms = await pool.query('SELECT * FROM room'); // Adjust the query to match your database schema
         res.json(rooms.rows);
     } catch (err) {
         console.error(err.message);
-        res.status(500).send('Server error while attempting to fetch rooms');
+        res.status(500).send('Server error while fetching rooms');
     }
 });
+
 
 
 // PUT endpoint for updating a room's details
@@ -403,26 +399,107 @@ app.put('/api/rooms/:room_id', async (req, res) => {
 });
 
 
-        // Get today's date
-        const date_of_booking = new Date().toISOString().slice(0, 10); // Format: YYYY-MM-DD
+     
 
-        // SQL query to insert a new booking into the database
-        const newBookingQuery = `
-            INSERT INTO booking (customer_id, room_id, date_of_booking, check_in_date, check_out_date) 
-            VALUES ($1, $2, $3, $4, $5) RETURNING *;
-        `;
-        
-        // Execute the query
-        const newBooking = await pool.query(newBookingQuery, [customer_id, room_id, date_of_booking, check_in_date, check_out_date]);
 
-        // Send the newly created booking as a response
-        res.status(201).json(newBooking.rows[0]);
-    } catch (error) {
-        // Handle errors
-        console.error('Error creating new booking:', error);
+app.get('/api/rooms-by-city', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM available_rooms_per_city');
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
         res.status(500).send('Server error');
     }
 });
+
+
+app.get('/api/room-capacity-per-hotel', async (req, res) => {
+    try {
+        const queryResult = await pool.query('SELECT * FROM total_room_capacity_per_hotel');
+        res.json(queryResult.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error while fetching room capacities');
+    }
+});
+
+app.get('/api/bookings', async (req, res) => {
+    try {
+        const allBookingsQuery = 'SELECT * FROM booking';
+        const allBookingsResult = await pool.query(allBookingsQuery);
+        res.json(allBookingsResult.rows);
+    } catch (error) {
+        console.error('Error fetching bookings:', error);
+        res.status(500).send('Server error while fetching bookings');
+    }
+});
+
+app.put('/api/transform-booking/:bookingId', async (req, res) => {
+    const { bookingId } = req.params;
+    const { employeeId } = req.body;
+  
+    try {
+      // Call your stored procedure or business logic to transform the booking here
+      await pool.query('CALL transform_booking_to_renting($1, $2)', [bookingId, employeeId]);
+      res.status(200).json({ message: 'Successfully transformed booking to renting' });
+    } catch (error) {
+      console.error('Error transforming booking to renting:', error);
+      res.status(500).send('Server error');
+    }
+  });
+  
+
+  // Helper functions to check the existence of customer, employee, and room
+const customerExists = async (customerId) => {
+    const res = await pool.query('SELECT 1 FROM customer WHERE ssn = $1', [customerId]);
+    return res.rowCount > 0;
+};
+
+const employeeExists = async (employeeId) => {
+    const res = await pool.query('SELECT 1 FROM employee WHERE employee_id = $1', [employeeId]);
+    return res.rowCount > 0;
+};
+
+const roomExists = async (roomId) => {
+    const res = await pool.query('SELECT 1 FROM room WHERE room_id = $1', [roomId]);
+    return res.rowCount > 0;
+};
+
+// Endpoint to create a new renting
+// Endpoint to create a new renting
+app.post('/api/renting', async (req, res) => {
+    try {
+        const { customer_id, employee_id, room_id, start_date, end_date } = req.body;
+
+        // Check if customer, employee, and room exist
+        const customerCheck = await customerExists(customer_id);
+        const employeeCheck = await employeeExists(employee_id);
+        const roomCheck = await roomExists(room_id);
+
+        // Collect error messages for invalid IDs
+        let invalidIds = [];
+        if (!customerCheck) invalidIds.push('customer ID');
+        if (!employeeCheck) invalidIds.push('employee ID');
+        if (!roomCheck) invalidIds.push('room ID');
+
+        // If any invalid IDs exist, return an error message
+        if (invalidIds.length > 0) {
+            return res.status(400).json({ message: `Invalid ${invalidIds.join(', ')}` });
+        }
+
+        // Insert renting data into the database
+        const newRentingQuery = `INSERT INTO renting (customer_id, employee_id, room_id, start_date, end_date) VALUES ($1, $2, $3, $4, $5) RETURNING *`;
+        const newRenting = await pool.query(newRentingQuery, [customer_id, employee_id, room_id, start_date, end_date]);
+
+        res.status(201).json(newRenting.rows[0]);
+    } catch (error) {
+        console.error('Error inserting renting:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
+
 
 
 

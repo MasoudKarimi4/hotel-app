@@ -6,6 +6,14 @@ import DeleteCustomers from './components/DeleteCustomers';
 import UpdateCustomers from './components/UpdateCustomers'; 
 import DeleteHotels from './components/DeleteHotels'; // Import the component
 import UpdateHotels from './components/UpdateHotels'; // Import the component
+import ViewRoomsByArea from './components/ViewRoomsByArea'; // Import the component
+import ViewRoomCapacityByHotel from './components/ViewRoomCapacityByHotel'; // Import the component
+import TransformBookingToRenting from './components/TransformBookingToRenting'; // Import the component
+
+
+
+
+
 
 
 
@@ -42,9 +50,9 @@ function App() {
             <Route path="/employee-app/update-hotels" element={<UpdateHotels />} />
             <Route path="/employee-app/delete-rooms" element={<DeleteRooms />} />
             <Route path="/employee-app/update-rooms" element={<UpdateRooms />} />
-
-            
-
+            <Route path="/view-rooms-by-area" element={<ViewRoomsByArea />} />
+            <Route path="/view-room-capacity-by-hotel" element={<ViewRoomCapacityByHotel />} />
+            <Route path="/transform-booking-to-renting" element={<TransformBookingToRenting />} />
             <Route path="/chains" element={<ChainView />} />
           </Routes>
         </div>

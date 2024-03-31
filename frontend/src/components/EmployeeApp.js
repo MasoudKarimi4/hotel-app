@@ -1,8 +1,39 @@
 import React, { useState } from 'react';
-import { Button, Grid, Typography, Paper, Dialog, DialogActions, DialogContent, DialogTitle, TextField,FormControlLabel,Checkbox } from '@mui/material';
+import { Button, Grid, Typography, Paper, Dialog, DialogActions, DialogContent, DialogTitle, TextField,FormControlLabel,Checkbox,Box, Stack} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 
+function InsertRentingModal({ open, onClose, onSubmit }) {
+  const [renting, setRenting] = useState({
+    customer_id: '', employee_id: '', room_id: '', start_date: '', end_date: ''
+  });
+
+  const handleChange = (e) => {
+    setRenting({ ...renting, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = () => {
+    onSubmit(renting);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose}>
+      <DialogTitle>Add New Renting</DialogTitle>
+      <DialogContent>
+        <TextField name="customer_id" label="Customer ID" type="number" onChange={handleChange} fullWidth margin="normal" />
+        <TextField name="employee_id" label="Employee ID" type="number" onChange={handleChange} fullWidth margin="normal" />
+        <TextField name="room_id" label="Room ID" type="number" onChange={handleChange} fullWidth margin="normal" />
+        <TextField name="start_date" label="Start Date" type="date" onChange={handleChange} fullWidth margin="normal" InputLabelProps={{ shrink: true }} />
+        <TextField name="end_date" label="End Date" type="date" onChange={handleChange} fullWidth margin="normal" InputLabelProps={{ shrink: true }} />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button onClick={handleSubmit}>Submit</Button>
+      </DialogActions>
+    </Dialog>
+  );
+}
 
 
 
@@ -237,6 +268,43 @@ const handleInsertRoom = async (roomData) => {
   return response;
 };
 
+const [isCreateRentingOpen, setCreateRentingOpen] = useState(false);
+  
+  const handleOpenCreateRenting = () => {
+    setCreateRentingOpen(true);
+  };
+
+  const handleCloseCreateRenting = () => {
+    setCreateRentingOpen(false);
+  };
+
+  const handleInsertRenting = async (rentingData) => {
+    try {
+      const response = await fetch('http://localhost:5000/api/renting', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(rentingData)
+      });
+  
+      if (response.ok) {
+        // If the response is OK, show success message
+        alert('Renting added successfully!');
+      } else if (response.status === 400) {
+        // Handle specific errors like invalid IDs
+        const errorData = await response.json();
+        alert(`Error: ${errorData.message}`);
+      } else {
+        // Handle other server errors
+        throw new Error('Failed to add renting');
+      }
+    } catch (error) {
+      console.error('Failed to insert renting:', error);
+      alert(`Failed to add renting: ${error.message}`);
+    }
+  };
+  
+  
+
 
 
 
@@ -305,13 +373,86 @@ const handleAction = (entity, action) => {
     }
 };
 
+const handleViewRoomsByArea = () => {
+  // Navigate to the view for available rooms per area
+  navigate('/view-rooms-by-area');
+};
+
+const handleViewRoomCapacityByHotel = () => {
+  // Navigate to the view for room capacity by hotel
+  navigate('/view-room-capacity-by-hotel');
+};
+
+ const handleTransformBookingToRenting = () => {
+    // Navigate to the page for transforming booking to renting
+    navigate('/transform-booking-to-renting');
+  };
+
+  
+ 
+
+
+
 
 
 
 
   return (
-    <Paper style={{ padding: '20px', margin: '20px' }}>
-      <Typography variant="h4" style={{ marginBottom: '20px' }}>Employee Management Panel</Typography>
+    <Paper style={{ padding: '20px', margin: '20px', borderRadius: '8px' }}>
+      <Box style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <Typography variant="h2" style={{ fontFamily: "'Roboto Condensed', sans-serif", fontWeight: 700 }}>
+          Employee Management Panel
+        </Typography>
+      </Box>
+
+      <Grid container spacing={4} justifyContent="center" alignItems="center">
+        <Grid item xs={12} md={5}>
+          <Box
+            boxShadow={3}
+            borderRadius={2}
+            p={3}
+            mb={4}
+            style={{ backgroundColor: 'white', border: '1px solid #e0e0e0' }}
+          >
+            <Typography variant="h6" textAlign="center" gutterBottom>
+              Booking to Renting
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              onClick={handleTransformBookingToRenting}
+              style={{ boxShadow: 'none' }}
+            >
+              Transform Booking to Renting
+            </Button>
+          </Box>
+        </Grid>
+        <Grid item xs={12} md={5}>
+          <Box
+            boxShadow={3}
+            borderRadius={2}
+            p={3}
+            mb={4}
+            style={{ backgroundColor: 'white', border: '1px solid #e0e0e0' }}
+          >
+            <Typography variant="h6" textAlign="center" gutterBottom>
+              Create Renting
+            </Typography>
+            <Button
+              variant="contained"
+              color="secondary"
+              fullWidth
+              onClick={handleOpenCreateRenting}
+              style={{ boxShadow: 'none' }}
+            >
+              Create Renting
+            </Button>
+            
+            
+          </Box>
+        </Grid>
+      </Grid>
       <Grid container spacing={3}>
         {['customers', 'employees', 'hotels', 'rooms'].map((entity) => (
           <Grid item xs={12} sm={6} md={3} key={entity}>
@@ -330,6 +471,17 @@ const handleAction = (entity, action) => {
           </Grid>
         ))}
       </Grid>
+
+      <Box sx={{ my: 4 }}>
+        <Stack direction="row" spacing={2} justifyContent="center">
+          <Button variant="contained" color="primary" onClick={handleViewRoomsByArea}>
+            View Available Rooms Per Area
+          </Button>
+          <Button variant="contained" color="secondary" onClick={handleViewRoomCapacityByHotel}>
+            View Room Capacity in Hotel
+          </Button>
+        </Stack>
+      </Box>
       {modalEntity === 'customers' && (
         <InsertCustomerModal open={isModalOpen} onClose={handleModalClose} onSubmit={handleInsertCustomer} />
       )}
@@ -354,6 +506,9 @@ const handleAction = (entity, action) => {
     onSubmit={handleInsertRoom}
   />
 )}
+{isCreateRentingOpen && (
+        <InsertRentingModal open={isCreateRentingOpen} onClose={handleCloseCreateRenting} onSubmit={handleInsertRenting} />
+      )}
 
             
     </Paper>
