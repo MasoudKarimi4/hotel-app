@@ -516,6 +516,27 @@ app.post('/api/bookings', async (req, res) => {
     }
 });
 
+app.post('/api/payments', async (req, res) => {
+    const { payment_rent_id, date_of_transaction, payment_info } = req.body; // Ensure payment_rent_id is included
+
+    try {
+        const insertPaymentQuery = `
+            INSERT INTO payment (payment_rent_id, date_of_transaction, payment_info)
+            VALUES ($1, $2, $3)
+            RETURNING *; 
+        `;
+
+        // Use parameterized queries to prevent SQL injection
+        const newPayment = await pool.query(insertPaymentQuery, [payment_rent_id, date_of_transaction, payment_info]);
+
+        res.status(201).json(newPayment.rows[0]);
+    } catch (error) {
+        console.error('Error inserting new payment:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
 
 
 
