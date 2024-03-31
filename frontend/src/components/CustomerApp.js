@@ -116,7 +116,6 @@ export default function CustomerApp() {
 
       <Filters/>
 
-      <Booking formData={formData} handleChange={handleChange} handleSubmit={handleSubmit}/>
 
       
     </ThemeProvider>
