@@ -498,6 +498,25 @@ app.post('/api/renting', async (req, res) => {
     }
 });
 
+app.post('/api/bookings', async (req, res) => {
+    try {
+        const { customer_id, room_id, check_in_date, check_out_date } = req.body;
+        const date_of_booking = new Date().toISOString().split('T')[0]; // This will format the date as "YYYY-MM-DD"
+
+        const insertBookingQuery = `
+            INSERT INTO booking (customer_id, room_id, date_of_booking, check_in_date, check_out_date) 
+            VALUES ($1, $2, $3, $4, $5) RETURNING *;
+        `;
+        const newBooking = await pool.query(insertBookingQuery, [customer_id, room_id, date_of_booking, check_in_date, check_out_date]);
+
+        res.status(201).json(newBooking.rows[0]);
+    } catch (error) {
+        console.error('Error inserting new booking:', error);
+        res.status(500).send('Server error');
+    }
+});
+
+
 
 
 

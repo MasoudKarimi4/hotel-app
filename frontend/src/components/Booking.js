@@ -3,35 +3,33 @@ import { Container, Box, Typography, TextField, Button } from '@mui/material';
 
 const Booking = ({ formData, handleChange }) => {
   
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
-    
-    try {
-      const response = await fetch('/api/bookings', {
+
+    // Assuming `formData` includes `customer_id`, `room_id`, `check_in_date`, and `check_out_date`
+    fetch('/api/bookings', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData)
-      });
+        body: JSON.stringify({
+            customer_id: formData.ssn, // Assuming the `ssn` field from your formData should be used as `customer_id`
+            room_id: formData.roomId, // You need to make sure this data is included in your form data
+            check_in_date: formData.checkInDate,
+            check_out_date: formData.checkOutDate,
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Booking successful:', data);
+        // Here you might want to redirect the user or show a success message
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        // Here you might want to show an error message
+    });
+};
 
-      if (!response.ok) {
-        throw new Error('Error occurred while booking');
-      }
-
-      // Reset form data upon successful booking
-      // You may implement further actions here, such as showing a success message
-      handleChange({
-        ssn: '',
-        roomId: '',
-        checkInDate: '',
-        checkOutDate: ''
-      });
-    } catch (error) {
-      console.error('Error booking:', error);
-      // You may implement further error handling here, such as showing an error message to the user
-    }
-  };
 
   return (
     <Container component="main" maxWidth="xs">
