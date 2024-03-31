@@ -570,6 +570,75 @@ app.get("/all-chains", async (req, res) => {
     }
 });
 
+// Filtering Query
+
+app.get('/filter-hotels', async (req, res) => {
+    console.log("Received filter-hotels get request");
+
+    const { address, rating, chain_id, capacity, view, date1, date2 } = req.query;
+
+    // Start with selecting hotels and rooms
+    let query = `
+        SELECT hotel.*, room.*
+        FROM hotel
+        JOIN room ON hotel.hotel_id = room.hotel_id
+        WHERE hotel.hotel_id NOT IN (
+            SELECT DISTINCT hotel.hotel_id
+            FROM hotel
+            JOIN room ON hotel.hotel_id = room.hotel_id
+            JOIN booking ON room.room_id = booking.room_id
+            WHERE (booking.check_in_date < $2 AND booking.check_out_date > $1)
+        )`;
+
+    const params = [date1, date2];
+    let paramCounter = params.length + 1;
+
+    // Apply additional filters as before
+    if (address && address !== 'all') {
+        query += ` AND hotel.address = $${paramCounter}`;
+        params.push(address);
+        paramCounter++;
+    }
+
+    if (rating && rating !== 'all') {
+        query += ` AND hotel.rating = $${paramCounter}`;
+        params.push(rating);
+        paramCounter++;
+    }
+
+    if (chain_id && chain_id !== 'all') {
+        query += ` AND hotel.chain_id = $${paramCounter}`;
+        params.push(chain_id);
+        paramCounter++;
+    }
+
+    if (capacity) {
+        query += ` AND room.capacity >= $${paramCounter}`;
+        params.push(capacity);
+        paramCounter++;
+    }
+
+    if (view && view !== 'all') {
+        query += ` AND room.view = $${paramCounter}`;
+        params.push(view);
+        paramCounter++;
+    }
+
+    query += ` GROUP BY hotel.hotel_id, room.room_id`;
+    query += ` ORDER BY hotel.chain_id, hotel.hotel_id`;
+
+    console.log("Query Parameters:", params);
+
+    try {
+        const result = await pool.query(query, params);
+        res.json(result.rows); // Directly return filtered rows
+    } catch (err) {
+        console.error('Error executing query:', err);
+        res.status(500).json({ error: 'An error occurred while searching for hotels.' });
+    }
+});
+
+
 
 
 app.listen(5000, () => {
