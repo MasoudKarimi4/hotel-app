@@ -164,9 +164,6 @@ export default function CustomerApp() {
 
       <Booking formData={formData} handleChange={handleChange} handleSubmit={handleSubmit}/>
 
-      <PaymentForm formData={formData} handleChange={handleChange} handleSubmit={handleSubmit}/>
-
-
       
     </ThemeProvider>
   );

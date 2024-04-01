@@ -88,6 +88,17 @@ const Booking = ({ formData, handleChange }) => {
           value={formData.checkOutDate}
           onChange={handleChange}
         />
+        <TextField
+          margin="normal"
+          required
+          fullWidth
+          id="paymentInfo"
+          label="Payment Information"
+          name="paymentInfo"
+          value={formData.paymentInfo}
+          onChange={handleChange}
+          helperText="Payment card number, expiry date, etc."
+        />
         <Button
           type="submit"
           fullWidth
