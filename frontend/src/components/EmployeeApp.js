@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Button, Grid, Typography, Paper, Dialog, DialogActions, DialogContent, DialogTitle, TextField,FormControlLabel,Checkbox,Box, Stack} from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import PaymentForm from './PaymentForm';
+
+
 
 
 function InsertRentingModal({ open, onClose, onSubmit }) {
@@ -390,7 +393,24 @@ const handleViewRoomCapacityByHotel = () => {
 
   
  
+  const [formData, setFormData] = useState({
+    rentingId: '',
+    paymentDate: '',
+    paymentInfo: ''
+  });
 
+  // Handler for form input changes
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  // Handler for form submission
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    // Submit form data to your backend
+    // Implement the fetch request here
+  };
 
 
 
@@ -510,7 +530,10 @@ const handleViewRoomCapacityByHotel = () => {
         <InsertRentingModal open={isCreateRentingOpen} onClose={handleCloseCreateRenting} onSubmit={handleInsertRenting} />
       )}
 
+<PaymentForm formData={formData} handleChange={handleChange} handleSubmit={handleSubmit}/>
+
             
     </Paper>
+    
   );
 }
