@@ -7,7 +7,7 @@ CREATE TABLE hotel_chain(
 	address TEXT,
 	email TEXT,
 	phone_number TEXT
-);
+)
 
 CREATE TABLE hotel(
 	hotel_id SERIAL PRIMARY KEY,
@@ -17,14 +17,14 @@ CREATE TABLE hotel(
 	num_rooms int,
 	address TEXT,
 	phone_number TEXT
-);
+)
 
 CREATE TABLE employee(
 	employee_id SERIAL PRIMARY KEY,
 	name TEXT,
 	sin int,
 	hotel_id int REFERENCES hotel(hotel_id)
-);
+)
 
 
 
@@ -37,12 +37,12 @@ CREATE TABLE room(
 	view TEXT,
 	damages TEXT,
 	extendable BOOLEAN
-);
+)
 
 CREATE TABLE room_amenities(
 	room_amenity_id int REFERENCES room(room_id),
 	amenity TEXT
-);
+)
 
 CREATE TABLE customer(
 	ssn int PRIMARY KEY,
@@ -50,7 +50,7 @@ CREATE TABLE customer(
 	address TEXT,
 	email TEXT,
 	date_of_registration DATE
-);
+)
 
 CREATE TABLE booking(
 	booking_id SERIAL PRIMARY KEY,
@@ -59,7 +59,7 @@ CREATE TABLE booking(
 	date_of_booking DATE,
 	check_in_date DATE,
 	check_out_date DATE
-);
+)
 
 
 
@@ -70,13 +70,13 @@ CREATE TABLE renting(
 	room_id int REFERENCES room(room_id),
 	start_date DATE,
 	end_date DATE
-);
+)
 
 CREATE TABLE payment(
 	payment_rent_id int REFERENCES renting(rent_id),
 	date_of_transaction DATE,
 	payment_info TEXT
-);
+)
 
 
 CREATE TABLE booking_archives(
@@ -86,7 +86,8 @@ CREATE TABLE booking_archives(
 	date_of_booking DATE,
 	check_in_date DATE,
 	check_out_date DATE
-);
+)
+
 
 CREATE TABLE renting_archives(
 	rent_id SERIAL PRIMARY KEY,
@@ -95,7 +96,7 @@ CREATE TABLE renting_archives(
 	room_id int ,
 	start_date DATE,
 	end_date DATE
-);
+)
 
 --add foreign keys for HOTEL
 ALTER TABLE hotel 
@@ -703,22 +704,29 @@ FOR EACH ROW
 EXECUTE FUNCTION archive_renting();
 
 INSERT INTO renting(customer_id, employee_id, room_id, start_date, end_date)
+VALUES
+(10004, 2, 3, '2035-07-02', '2036-07-06')
+
+select * from renting
+
+
+INSERT INTO renting(customer_id, employee_id, room_id, start_date, end_date)
 VALUES(10002, 5, 10, '2027-07-07', '2027-07-12');
 
 --THIRD TRIGGER TO ADD A RANDOM MANAGER TO A NEWLY ADDED HOTEL.
 CREATE OR REPLACE FUNCTION assign_manager_to_new_hotel()
 RETURNS TRIGGER AS $$
 DECLARE
-    manager_id int;
+    selected_manager_id int;
 BEGIN
     -- Select an eligible employee to be the manager
-    SELECT employee_id INTO manager_id FROM employee
+    SELECT employee_id INTO selected_manager_id FROM employee
     WHERE role = 'Manager' AND hotel_id IS NULL
     LIMIT 1;
 
     -- Assign the manager to the new hotel
     IF FOUND THEN
-        UPDATE hotel SET manager_id = manager_id WHERE hotel_id = NEW.hotel_id;
+        UPDATE hotel SET manager_id = selected_manager_id WHERE hotel_id = NEW.hotel_id;
     ELSE
         RAISE NOTICE 'No available managers to assign.';
     END IF;
@@ -731,6 +739,12 @@ CREATE TRIGGER trigger_assign_manager
 AFTER INSERT ON hotel
 FOR EACH ROW
 EXECUTE FUNCTION assign_manager_to_new_hotel();
+
+INSERT INTO hotel(chain_id, rating, num_rooms, address, phone_number)
+VALUES(3, 5, 300, '203 Avenue Road, CityTesting', '911-911-911');
+
+select * from hotel
+
 
 
 --FOURTH TRIGGER SO THAT THE END DATE IS BEFORE START DATE
@@ -753,7 +767,7 @@ FOR EACH ROW
 EXECUTE FUNCTION validate_booking_dates();
 
 --PROCEDURE TO TRNASFORM BOOKING TO RENTING AND THEN DELETING THE RESPECTIVE BOOKING
-CREATE OR REPLACE PROCEDURE transform_booking_to_renting(booking_id_param int)
+CREATE OR REPLACE PROCEDURE transform_booking_to_renting(booking_id_param int,employee_id int)
 LANGUAGE plpgsql AS $$
 DECLARE
     v_customer_id int;
@@ -766,6 +780,9 @@ BEGIN
     SELECT customer_id, room_id, check_in_date, check_out_date INTO v_customer_id, v_room_id, v_start_date, v_end_date
     FROM booking
     WHERE booking_id = booking_id_param;
+	
+	-- Assign the passed employee ID to the variable
+    v_employee_id := employee_id;
 
     -- Insert a new record into the renting table
     INSERT INTO renting (customer_id, room_id, start_date, end_date, employee_id)
@@ -795,19 +812,28 @@ CREATE INDEX idx_booking_check_out_date ON booking(check_out_date);
 CREATE INDEX idx_employee_employee_id ON employee(employee_id);
 
 
+
+
+
+
+
 --2F)
 --VIEWS 
 
---view 1 . I assume area is the hotel 
+--view 1 . I assume area is the city name in adress 
+--and each adress has a city in it in this format CityX 
 
-CREATE VIEW available_rooms_per_hotel AS
-SELECT h.hotel_id, h.name AS hotel_name, COUNT(r.room_id) AS available_rooms
+CREATE OR REPLACE VIEW available_rooms_per_city AS
+SELECT
+    SUBSTRING(h.address FROM 'City[A-Z]+') AS city,
+    COUNT(r.room_id) AS available_rooms
 FROM hotel h
 JOIN room r ON h.hotel_id = r.hotel_id
 LEFT JOIN booking b ON r.room_id = b.room_id
 LEFT JOIN renting re ON r.room_id = re.room_id
 WHERE b.booking_id IS NULL AND re.rent_id IS NULL
-GROUP BY h.hotel_id, h.name;
+GROUP BY city;
+
 
 --view 2.
 
@@ -837,3 +863,5 @@ select * from booking_archives
 select * from renting
 select * from customer
 select * from renting_archives
+select * from available_rooms_per_city
+select * from total_room_capacity_per_hotel
