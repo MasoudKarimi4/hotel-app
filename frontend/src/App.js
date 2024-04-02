@@ -23,8 +23,8 @@ import CreateAccount from "./components/accounts/CreateAccount";
 import CustomerSignIn from "./components/accounts/Customer";
 import EmployeeSignIn from "./components/Employee";
 import ChainView from './components/ChainView';
-import DeleteEmployees from './components/DeleteEmployees'; // Adjust the import path as needed
-import UpdateEmployees from './components/UpdateEmployees'; // Adjust the import path as needed
+import DeleteEmployees from './components/DeleteEmployees'; 
+import UpdateEmployees from './components/UpdateEmployees';
 import DeleteRooms from './components/DeleteRooms';
 import UpdateRooms from './components/UpdateRooms';
 

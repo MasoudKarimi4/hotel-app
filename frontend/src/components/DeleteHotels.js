@@ -20,7 +20,7 @@ function DeleteHotels() {
     useEffect(() => {
         const fetchHotels = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/hotels'); // Update with your server's URL
+                const response = await fetch('http://localhost:5000/api/hotels'); 
                 if (!response.ok) {
                     throw new Error('Failed to fetch');
                 }

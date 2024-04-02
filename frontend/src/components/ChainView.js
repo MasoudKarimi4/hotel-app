@@ -135,7 +135,7 @@ export default function ChainView() {
               </Typography>
 
               
-              <TableContainer component={Paper} sx={{ width: '100%', marginBottom: '20px' }}> {/* Adjust the width here */}
+              <TableContainer component={Paper} sx={{ width: '100%', marginBottom: '20px' }}> 
                 <Table>
                   <TableHead>
                     <TableRow>

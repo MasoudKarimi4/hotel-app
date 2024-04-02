@@ -23,7 +23,7 @@ function DeleteCustomers() {
     useEffect(() => {
         const fetchCustomers = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/customers'); // Update with your server's URL
+                const response = await fetch('http://localhost:5000/api/customers'); 
                 if (!response.ok) {
                     throw new Error('Failed to fetch');
                 }
@@ -54,7 +54,6 @@ function DeleteCustomers() {
             } else {
                 // Customer deleted successfully, update the state to remove the customer from the list
                 setCustomers(customers.filter((customer) => customer.ssn !== customerId));
-                // ... handle showing success message ...
             }
         } catch (error) {
             console.error('Failed to delete customer:', error);

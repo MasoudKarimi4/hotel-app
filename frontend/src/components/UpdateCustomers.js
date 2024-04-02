@@ -17,7 +17,7 @@ function UpdateCustomers() {
     useEffect(() => {
         const fetchCustomers = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/customers'); // Ensure this URL is correct
+                const response = await fetch('http://localhost:5000/api/customers'); 
                 if (!response.ok) {
                     throw new Error('Failed to fetch');
                 }

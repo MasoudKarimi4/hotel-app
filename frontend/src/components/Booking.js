@@ -6,15 +6,14 @@ const Booking = ({ formData, handleChange }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    // Assuming `formData` includes `customer_id`, `room_id`, `check_in_date`, and `check_out_date`
     fetch('/api/bookings', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-            customer_id: formData.ssn, // Assuming the `ssn` field from your formData should be used as `customer_id`
-            room_id: formData.roomId, // You need to make sure this data is included in your form data
+            customer_id: formData.ssn, 
+            room_id: formData.roomId, 
             check_in_date: formData.checkInDate,
             check_out_date: formData.checkOutDate,
         }),
@@ -22,11 +21,9 @@ const Booking = ({ formData, handleChange }) => {
     .then(response => response.json())
     .then(data => {
         console.log('Booking successful:', data);
-        // Here you might want to redirect the user or show a success message
     })
     .catch((error) => {
         console.error('Error:', error);
-        // Here you might want to show an error message
     });
 };
 

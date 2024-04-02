@@ -35,7 +35,6 @@ export default function CustomerApp() {
   const handleSubmit = (event) => {
     event.preventDefault();
     console.log(formData);
-    // Here you can send the form data to your backend
   };
 
   const handleChange = (event) => {

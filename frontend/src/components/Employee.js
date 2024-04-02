@@ -49,7 +49,7 @@ const CreateEmployee = () => { // Renamed from CreateCustomer
         const body = { name, email, ssn }; // Include SSN in the request body
         console.log('Request body:', body);
 
-        const response = await fetch("http://localhost:5000/createemployee", { // Assuming the endpoint is for creating an employee
+        const response = await fetch("http://localhost:5000/createemployee", { 
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(body),

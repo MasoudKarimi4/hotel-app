@@ -18,7 +18,6 @@ export default function HotelApp() {
 
   return (
     <div>
-      {/* Your JSX content for the editing page goes here */}
       <h1>Hotel App </h1>
     </div>
   );

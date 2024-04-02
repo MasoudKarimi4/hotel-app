@@ -16,7 +16,7 @@ function DeleteEmployees() {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/employees'); // Ensure this URL matches your server's
+                const response = await fetch('http://localhost:5000/api/employees'); 
                 if (!response.ok) {
                     throw new Error('Failed to fetch');
                 }
@@ -39,7 +39,6 @@ function DeleteEmployees() {
             if (!response.ok) {
                 const data = await response.json();
                 if (response.status === 400) {
-                    // Specific case handling, e.g., deleting related data first
                     setDialogContent(data.message);
                     setOpenDialog(true);
                 } else {
@@ -47,11 +46,10 @@ function DeleteEmployees() {
                 }
             } else {
                 setEmployees(employees.filter((employee) => employee.employee_id !== employeeId));
-                // Show success message, for example with a Snackbar
+
             }
         } catch (error) {
             console.error('Failed to delete employee:', error);
-            // Show error message, for example with a Snackbar
         }
     };
     

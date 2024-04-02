@@ -1,8 +1,6 @@
-// Const is a variable that cannot be changed 
-
 
 // Importing the required libraries / packages
-// Express is the backend framework
+
 // Cors is needed 
 const express = require('express');
 const app = express();
@@ -14,7 +12,6 @@ app.use(express.json())
 
 // Routes //
 
-// Add this new endpoint to your Express app
 
 // POST endpoint for creating a new customer
 app.post("/addcustomer", async (req, res) => {
@@ -108,7 +105,6 @@ app.post('/api/employee', async (req, res) => {
     try {
         const { employee_id, name, sin, hotel_id, role } = req.body;
 
-        // Adjusted SQL query to match the 'employee' table
         const insertEmployeeQuery = `INSERT INTO employee (employee_id, name, sin, hotel_id, role) VALUES ($1, $2, $3, $4, $5) RETURNING *`;
         const newEmployee = await pool.query(insertEmployeeQuery, [employee_id, name, sin, hotel_id, role]);
 
@@ -122,7 +118,7 @@ app.post('/api/employee', async (req, res) => {
 app.get('/api/employees', async (req, res) => {
     try {
         // Replace with your actual query to get employees from your database
-        const result = await pool.query('SELECT * FROM employee'); // Adjust the query as per your DB schema
+        const result = await pool.query('SELECT * FROM employee'); 
         res.json(result.rows);
     } catch (err) {
         console.error(err.message);
@@ -134,7 +130,6 @@ app.delete('/api/employees/:employeeId', async (req, res) => {
     try {
         const { employeeId } = req.params;
         // Use a SQL query to delete the employee by their ID
-        // Make sure to handle foreign key constraints if necessary
         const deleteQuery = 'DELETE FROM employee WHERE employee_id = $1 RETURNING *';
         const deletedEmployee = await pool.query(deleteQuery, [employeeId]);
 
@@ -146,7 +141,7 @@ app.delete('/api/employees/:employeeId', async (req, res) => {
         res.json({ message: 'Employee deleted successfully' });
     } catch (err) {
         // Handle errors, e.g., foreign key violation
-        if (err.code === '23503') { // Assuming PostgreSQL for FK violation code
+        if (err.code === '23503') { 
             return res.status(400).json({ message: 'Cannot delete employee with dependent records' });
         }
         console.error(err.message);
@@ -160,7 +155,6 @@ app.put('/api/employees/:employeeId', async (req, res) => {
 
     try {
         // SQL query to update the employee. 
-        // Make sure to adjust the table name and fields to match your database schema.
         const updateEmployeeQuery = `
             UPDATE employee
             SET name = $1, sin = $2, hotel_id = $3, role = $4
@@ -185,7 +179,7 @@ app.put('/api/employees/:employeeId', async (req, res) => {
     }
 });
 
-// Example route in your Express application
+//post to hotels table
 app.post('/api/hotels', async (req, res) => {
     const { name,chain_id, rating, manager_id, num_rooms, address, phone_number } = req.body;
 
@@ -219,8 +213,8 @@ app.post('/api/hotels', async (req, res) => {
 
 app.get('/api/hotels', async (req, res) => {
     try {
-        // Replace with your actual query to get hotels from your database
-        const result = await pool.query('SELECT * FROM hotel'); // Adjust the query as per your DB schema
+        
+        const result = await pool.query('SELECT * FROM hotel'); 
         res.json(result.rows);
     } catch (err) {
         console.error(err.message);
@@ -232,7 +226,6 @@ app.delete('/api/hotels/:hotelId', async (req, res) => {
     const { hotelId } = req.params;
     try {
         // Check for any dependencies or related records before deleting
-        // Example: Check if there are employees associated with the hotel
         const employeesQuery = 'SELECT * FROM employee WHERE hotel_id = $1';
         const employees = await pool.query(employeesQuery, [hotelId]);
 
@@ -246,7 +239,7 @@ app.delete('/api/hotels/:hotelId', async (req, res) => {
         const result = await pool.query(deleteHotelQuery, [hotelId]);
 
         if (result.rowCount === 0) {
-            // If the hotel wasn't found, send an appropriate response
+            // If the hotel wasn't found
             return res.status(404).json({ message: "Hotel not found" });
         }
 
@@ -291,9 +284,7 @@ app.put('/api/hotels/:hotel_id', async (req, res) => {
     }
 });
 
-//insert booking into booking table
 
-// In your backend (e.g., index.js or wherever you handle routes)
 app.post('/api/rooms', async (req, res) => {
     const { hotel_id, room_number, price, capacity, view, damages, extendable } = req.body;
     
@@ -306,7 +297,7 @@ app.post('/api/rooms', async (req, res) => {
             return res.status(404).json({ message: 'Hotel not found' });
         }
 
-        // Proceed to insert the room
+        //  insert the room
         const insertRoomQuery = `
             INSERT INTO room (hotel_id, room_number, price, capacity, view, damages, extendable)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -360,7 +351,7 @@ app.delete('/api/rooms/:room_id', async (req, res) => {
 
 app.get('/api/rooms', async (req, res) => {
     try {
-        const rooms = await pool.query('SELECT * FROM room'); // Adjust the query to match your database schema
+        const rooms = await pool.query('SELECT * FROM room'); 
         res.json(rooms.rows);
     } catch (err) {
         console.error(err.message);

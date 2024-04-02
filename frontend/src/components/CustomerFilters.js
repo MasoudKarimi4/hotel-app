@@ -21,14 +21,14 @@ const defaultTheme = createTheme();
 
 export default function Filters() {
  const navigate = useNavigate();
- const [priceRange, setPriceRange] = React.useState(400); // Initial value for price range slider
- const [rating, setRating] = React.useState(''); // Default to empty string
- const [dates, setDates] = React.useState(''); // Default to empty string
- const [dates2, setDates2] = React.useState(''); // Default to empty string
- const [city, setCity] = React.useState(''); // Default to empty string
- const [roomView, setRoomView] = React.useState(''); // Default to empty string
- const [chain_id, setChain] = React.useState(''); // Default to empty string
- const [people, setPeople] = React.useState(''); // Default to empty string
+ const [priceRange, setPriceRange] = React.useState(400); 
+ const [rating, setRating] = React.useState(''); 
+ const [dates, setDates] = React.useState(''); 
+ const [dates2, setDates2] = React.useState('');
+ const [city, setCity] = React.useState(''); 
+ const [roomView, setRoomView] = React.useState('');
+ const [chain_id, setChain] = React.useState(''); 
+ const [people, setPeople] = React.useState(''); 
  const [hotelData, setHotelData] = React.useState([]);
 
 
@@ -48,7 +48,7 @@ export default function Filters() {
         address: curr.address,
         rating: curr.rating,
         city: curr.city,
-        rooms: [curr], // Assuming curr represents a room
+        rooms: [curr], 
         views: [curr]
       }]
     });
@@ -62,11 +62,11 @@ export default function Filters() {
         address: curr.address,
         rating: curr.rating,
         city: curr.city,
-        rooms: [curr], // Assuming curr represents a room
+        rooms: [curr], 
         views: [curr]
       });
     } else {
-      acc[chainIndex].hotels[hotelIndex].rooms.push(curr); // Assuming curr represents a room
+      acc[chainIndex].hotels[hotelIndex].rooms.push(curr); 
     }
   }
   return acc;

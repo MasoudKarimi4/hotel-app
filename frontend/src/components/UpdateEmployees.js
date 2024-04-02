@@ -16,7 +16,7 @@ function UpdateEmployees() {
     useEffect(() => {
         const fetchEmployees = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/employees'); // Ensure this URL is correct
+                const response = await fetch('http://localhost:5000/api/employees'); 
                 if (!response.ok) {
                     throw new Error('Failed to fetch');
                 }

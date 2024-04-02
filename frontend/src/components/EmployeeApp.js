@@ -210,7 +210,7 @@ function InsertRoomModal({ open, onClose, onSubmit }) {
     capacity: '',
     view: '',
     damages: '',
-    extendable: false, // Assuming extendable is a boolean
+    extendable: false, 
   });
 
   const handleChange = (e) => {
